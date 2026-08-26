@@ -1,0 +1,294 @@
+{
+  "Solanaceae": [
+    {
+      "id": "sol_tomato",
+      "name": "Tomato",
+      "scientific_name": "Solanum lycopersicum",
+      "status": "AI Detection Available",
+      "ai_supported": true,
+      "description": "High-value commercial crop. Full AI diagnosis active for 10 conditions."
+    },
+    {
+      "id": "sol_potato",
+      "name": "Potato",
+      "scientific_name": "Solanum tuberosum",
+      "status": "AI Detection Available",
+      "ai_supported": true,
+      "description": "Staple tuber crop. Full AI diagnosis active for Early Blight, Late Blight, and Healthy Foliage."
+    },
+    {
+      "id": "sol_capsicum",
+      "name": "Capsicum / Bell Pepper",
+      "scientific_name": "Capsicum annuum",
+      "status": "AI Detection Available",
+      "ai_supported": true,
+      "description": "Sweet pepper crop. Full AI diagnosis active for Bacterial Spot and Healthy Foliage."
+    },
+    {
+      "id": "sol_brinjal",
+      "name": "Brinjal / Eggplant",
+      "scientific_name": "Solanum melongena",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "sol_chilli",
+      "name": "Chilli",
+      "scientific_name": "Capsicum frutescens",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ],
+  "Cucurbit Vegetables": [
+    {
+      "id": "cuc_pumpkin",
+      "name": "Pumpkin",
+      "scientific_name": "Cucurbita moschata",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_cucumber",
+      "name": "Cucumber",
+      "scientific_name": "Cucumis sativus",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_bottle_gourd",
+      "name": "Bottle Gourd / Lauki",
+      "scientific_name": "Lagenaria siceraria",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_bitter_gourd",
+      "name": "Bitter Gourd / Karela",
+      "scientific_name": "Momordica charantia",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_ridge_gourd",
+      "name": "Ridge Gourd / Turai",
+      "scientific_name": "Luffa acutangula",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_sponge_gourd",
+      "name": "Sponge Gourd / Gilki",
+      "scientific_name": "Luffa aegyptiaca",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_pointed_gourd",
+      "name": "Pointed Gourd / Parwal",
+      "scientific_name": "Trichosanthes dioica",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_ash_gourd",
+      "name": "Ash Gourd / Petha",
+      "scientific_name": "Benincasa hispida",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_zucchini",
+      "name": "Zucchini",
+      "scientific_name": "Cucurbita pepo",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_snake_gourd",
+      "name": "Snake Gourd / Chichinda",
+      "scientific_name": "Trichosanthes cucumerina",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "cuc_ivy_gourd",
+      "name": "Ivy Gourd / Kundru",
+      "scientific_name": "Coccinia grandis",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ],
+  "Common Indian Vegetables": [
+    {
+      "id": "com_okra",
+      "name": "Okra / Lady Finger / Bhindi",
+      "scientific_name": "Abelmoschus esculentus",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_french_bean",
+      "name": "French Bean",
+      "scientific_name": "Phaseolus vulgaris",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_green_bean",
+      "name": "Green Bean",
+      "scientific_name": "Phaseolus vulgaris var.",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_peas",
+      "name": "Peas / Matar",
+      "scientific_name": "Pisum sativum",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_sweet_corn",
+      "name": "Sweet Corn",
+      "scientific_name": "Zea mays var. saccharata",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_carrot",
+      "name": "Carrot",
+      "scientific_name": "Daucus carota",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_radish",
+      "name": "Radish / Mooli",
+      "scientific_name": "Raphanus sativus",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_beetroot",
+      "name": "Beetroot",
+      "scientific_name": "Beta vulgaris",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "com_turnip",
+      "name": "Turnip / Shalgam",
+      "scientific_name": "Brassica rapa subsp. rapa",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ],
+  "Cole Vegetables": [
+    {
+      "id": "col_cabbage",
+      "name": "Cabbage",
+      "scientific_name": "Brassica oleracea var. capitata",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "col_cauliflower",
+      "name": "Cauliflower",
+      "scientific_name": "Brassica oleracea var. botrytis",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "col_broccoli",
+      "name": "Broccoli",
+      "scientific_name": "Brassica oleracea var. italica",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ],
+  "Leafy Vegetables": [
+    {
+      "id": "lea_spinach",
+      "name": "Spinach / Palak",
+      "scientific_name": "Spinacia oleracea",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "lea_fenugreek",
+      "name": "Fenugreek / Methi",
+      "scientific_name": "Trigonella foenum-graecum",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "lea_coriander",
+      "name": "Coriander / Dhaniya",
+      "scientific_name": "Coriandrum sativum",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "lea_lettuce",
+      "name": "Lettuce",
+      "scientific_name": "Lactuca sativa",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "lea_amaranth",
+      "name": "Amaranth / Chaulai",
+      "scientific_name": "Amaranthus cruentus",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ],
+  "Bulb Vegetables": [
+    {
+      "id": "bul_onion",
+      "name": "Onion",
+      "scientific_name": "Allium cepa",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    },
+    {
+      "id": "bul_garlic",
+      "name": "Garlic",
+      "scientific_name": "Allium sativum",
+      "status": "Knowledge Available / Training Planned",
+      "ai_supported": false,
+      "description": "Crop information available — AI leaf disease detection is being calibrated."
+    }
+  ]
+}

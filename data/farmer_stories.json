@@ -1,0 +1,16 @@
+[
+  {
+    "id": "story_001",
+    "farmer_name": "Sanjay Singh",
+    "location": "Kaithma",
+    "state": "Bihar, India",
+    "crop": "Tomato (Solanaceae)",
+    "image": "",
+    "short_description": "Controlled early-season bacterial spot in cherry tomatoes using early diagnostic screening and copper-bactericide tank mixes.",
+    "story": "During continuous monsoon drizzle, early water-soaked lesions appeared on lower foliage. Using PlantCare AI, bacterial spot was identified before it could ascend to flowering clusters. Drip irrigation sanitation and preventative copper hydroxide sprays saved over 85% of harvest volume.",
+    "contact_cta": "Community Grower Network",
+    "status": "active",
+    "priority": 1,
+    "date": "2026-08-26"
+  }
+]

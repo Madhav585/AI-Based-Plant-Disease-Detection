@@ -1,0 +1,35 @@
+{
+  "spray_rules": {
+    "max_wind_speed_kmh": 15.0,
+    "max_rain_probability_pct": 30.0,
+    "min_temperature_c": 10.0,
+    "max_temperature_c": 35.0,
+    "max_relative_humidity_pct": 88.0
+  },
+  "disease_risk_thresholds": {
+    "late_blight": {
+      "min_temp": 10.0,
+      "max_temp": 23.0,
+      "min_humidity": 85.0,
+      "risk_label": "Critical Risk (Late Blight / Oomycete Pressure)"
+    },
+    "early_blight_leaf_mold": {
+      "min_temp": 22.0,
+      "max_temp": 30.0,
+      "min_humidity": 70.0,
+      "risk_label": "High Risk (Fungal Blight & Leaf Mold Spore Germination)"
+    },
+    "bacterial_spot": {
+      "min_temp": 24.0,
+      "max_temp": 34.0,
+      "min_humidity": 78.0,
+      "risk_label": "Elevated Risk (Bacterial Foliar Invasion Pressure)"
+    },
+    "spider_mites": {
+      "min_temp": 27.0,
+      "max_temp": 45.0,
+      "max_humidity": 50.0,
+      "risk_label": "Elevated Risk (Hot, Dry Microclimate Encouraging Spider Mites)"
+    }
+  }
+}

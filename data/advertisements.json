@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ad_001",
+    "title": "Smart Solar Automated Drip Irrigation",
+    "company": "SEA AUTO",
+    "image": "",
+    "description": "Affordable IoT-enabled automatic drip irrigation system designed to reduce water usage by 60% and keep foliar canopies dry.",
+    "category": "Agriculture Technology",
+    "button_text": "Explore Product",
+    "button_url": "https://example.com/sea-auto-irrigation",
+    "status": "active",
+    "priority": 1,
+    "start_date": "2026-01-01",
+    "end_date": "2026-12-31"
+  }
+]
