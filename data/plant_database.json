@@ -6,7 +6,7 @@
       "scientific_name": "Solanum lycopersicum",
       "status": "AI Detection Available",
       "ai_supported": true,
-      "description": "High-value commercial crop. Full AI diagnosis active for 10 conditions."
+      "description": "High-value commercial crop. Full AI diagnosis available for 10 conditions including Early Blight, Late Blight, Bacterial Spot, and Mites."
     },
     {
       "id": "sol_potato",
@@ -14,7 +14,7 @@
       "scientific_name": "Solanum tuberosum",
       "status": "AI Detection Available",
       "ai_supported": true,
-      "description": "Staple tuber crop. Full AI diagnosis active for Early Blight, Late Blight, and Healthy Foliage."
+      "description": "Staple tuber crop. Full AI diagnosis available for Early Blight, Late Blight, and Healthy Foliage."
     },
     {
       "id": "sol_capsicum",
@@ -22,7 +22,7 @@
       "scientific_name": "Capsicum annuum",
       "status": "AI Detection Available",
       "ai_supported": true,
-      "description": "Sweet pepper crop. Full AI diagnosis active for Bacterial Spot and Healthy Foliage."
+      "description": "Sweet pepper crop. Full AI diagnosis available for Bacterial Spot and Healthy Foliage."
     },
     {
       "id": "sol_brinjal",
@@ -30,7 +30,7 @@
       "scientific_name": "Solanum melongena",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Common solanaceous crop susceptible to Phomopsis blight and shoot borer. AI disease coverage planned."
     },
     {
       "id": "sol_chilli",
@@ -38,7 +38,7 @@
       "scientific_name": "Capsicum frutescens",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "High-value spice crop susceptible to anthracnose, leaf curl virus, and thrips. AI disease coverage planned."
     }
   ],
   "Cucurbit Vegetables": [
@@ -48,7 +48,7 @@
       "scientific_name": "Cucurbita moschata",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Vigorous cucurbit crop prone to powdery mildew, downy mildew, and gummy stem blight."
     },
     {
       "id": "cuc_cucumber",
@@ -56,89 +56,89 @@
       "scientific_name": "Cucumis sativus",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Widely cultivated vine crop susceptible to downy mildew, mosaic virus, and angular leaf spot."
     },
     {
       "id": "cuc_bottle_gourd",
       "name": "Bottle Gourd / Lauki",
       "scientific_name": "Lagenaria siceraria",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Popular warm-season gourd prone to downy mildew, anthracnose, and fruit flies."
     },
     {
       "id": "cuc_bitter_gourd",
       "name": "Bitter Gourd / Karela",
       "scientific_name": "Momordica charantia",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Medicinal and culinary gourd crop prone to powdery mildew and Cercospora leaf spot."
     },
     {
       "id": "cuc_ridge_gourd",
       "name": "Ridge Gourd / Turai",
       "scientific_name": "Luffa acutangula",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Fibrous gourd variety susceptible to mosaic virus and anthracnose."
     },
     {
       "id": "cuc_sponge_gourd",
       "name": "Sponge Gourd / Gilki",
       "scientific_name": "Luffa aegyptiaca",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Smooth gourd crop prone to fungal leaf spots and blossom end rot."
     },
     {
       "id": "cuc_pointed_gourd",
       "name": "Pointed Gourd / Parwal",
       "scientific_name": "Trichosanthes dioica",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Perennial vegetable vine prone to collar rot, root rot, and downy mildew."
     },
     {
       "id": "cuc_ash_gourd",
       "name": "Ash Gourd / Petha",
       "scientific_name": "Benincasa hispida",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Large storage gourd prone to gummy stem blight and mosaic virus."
     },
     {
       "id": "cuc_zucchini",
       "name": "Zucchini",
       "scientific_name": "Cucurbita pepo",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Summer squash crop susceptible to squash vine borer, powdery mildew, and mosaic virus."
     },
     {
       "id": "cuc_snake_gourd",
       "name": "Snake Gourd / Chichinda",
       "scientific_name": "Trichosanthes cucumerina",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Long climbing gourd prone to downy mildew and blossom end rot."
     },
     {
       "id": "cuc_ivy_gourd",
       "name": "Ivy Gourd / Kundru",
       "scientific_name": "Coccinia grandis",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Tropical perennial vine susceptible to root-knot nematodes and leaf spot."
     }
   ],
-  "Common Indian Vegetables": [
+  "Common Vegetables": [
     {
       "id": "com_okra",
       "name": "Okra / Lady Finger / Bhindi",
       "scientific_name": "Abelmoschus esculentus",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Warm-season vegetable prone to Yellow Vein Mosaic Virus (YVMV) and powdery mildew."
     },
     {
       "id": "com_french_bean",
@@ -146,15 +146,15 @@
       "scientific_name": "Phaseolus vulgaris",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Bush and pole legume crop prone to rust, anthracnose, and common bacterial blight."
     },
     {
       "id": "com_green_bean",
       "name": "Green Bean",
       "scientific_name": "Phaseolus vulgaris var.",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Succulent pod vegetable susceptible to root rot, halo blight, and bean common mosaic virus."
     },
     {
       "id": "com_peas",
@@ -162,47 +162,47 @@
       "scientific_name": "Pisum sativum",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Cool-season legume crop prone to powdery mildew, Ascochyta blight, and Fusarium wilt."
     },
     {
       "id": "com_sweet_corn",
       "name": "Sweet Corn",
       "scientific_name": "Zea mays var. saccharata",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Cereal-vegetable hybrid crop prone to common rust, northern corn leaf blight, and armyworms."
     },
     {
       "id": "com_carrot",
       "name": "Carrot",
       "scientific_name": "Daucus carota",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Root vegetable crop susceptible to Alternaria leaf blight, cavity spot, and aster yellows."
     },
     {
       "id": "com_radish",
       "name": "Radish / Mooli",
       "scientific_name": "Raphanus sativus",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Fast-growing cruciferous root crop prone to white rust and Alternaria leaf spot."
     },
     {
       "id": "com_beetroot",
       "name": "Beetroot",
       "scientific_name": "Beta vulgaris",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Nutritious root crop prone to Cercospora leaf spot, damping-off, and scab."
     },
     {
       "id": "com_turnip",
       "name": "Turnip / Shalgam",
       "scientific_name": "Brassica rapa subsp. rapa",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Brassica root vegetable prone to clubroot, black rot, and mosaic virus."
     }
   ],
   "Cole Vegetables": [
@@ -212,7 +212,7 @@
       "scientific_name": "Brassica oleracea var. capitata",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Heading brassica crop prone to Black Rot (Xanthomonas), clubroot, and diamondback moth larvae."
     },
     {
       "id": "col_cauliflower",
@@ -220,15 +220,15 @@
       "scientific_name": "Brassica oleracea var. botrytis",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Curd-forming cole vegetable susceptible to downy mildew, black rot, and boron deficiency."
     },
     {
       "id": "col_broccoli",
       "name": "Broccoli",
       "scientific_name": "Brassica oleracea var. italica",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "High-nutrient head vegetable prone to Alternaria black spot and bacterial soft rot."
     }
   ],
   "Leafy Vegetables": [
@@ -238,39 +238,39 @@
       "scientific_name": "Spinacia oleracea",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Tender leafy green prone to downy mildew (blue mold), white rust, and leaf miner damage."
     },
     {
       "id": "lea_fenugreek",
       "name": "Fenugreek / Methi",
       "scientific_name": "Trigonella foenum-graecum",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Aromatic legume green susceptible to Cercospora leaf spot, powdery mildew, and root rot."
     },
     {
       "id": "lea_coriander",
       "name": "Coriander / Dhaniya",
       "scientific_name": "Coriandrum sativum",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "High-demand culinary herb prone to stem gall, powdery mildew, and Fusarium wilt."
     },
     {
       "id": "lea_lettuce",
       "name": "Lettuce",
       "scientific_name": "Lactuca sativa",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Salad green crop susceptible to bottom rot, sclerotinia drop, downy mildew, and mosaic virus."
     },
     {
       "id": "lea_amaranth",
       "name": "Amaranth / Chaulai",
       "scientific_name": "Amaranthus cruentus",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Heat-tolerant tropical green prone to white rust (Albugo) and wet rot (Choanephora)."
     }
   ],
   "Bulb Vegetables": [
@@ -280,15 +280,15 @@
       "scientific_name": "Allium cepa",
       "status": "Knowledge Available / Training Planned",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Essential allium crop susceptible to Purple Blotch (Alternaria porri), Stemphylium blight, and thrips."
     },
     {
       "id": "bul_garlic",
       "name": "Garlic",
       "scientific_name": "Allium sativum",
-      "status": "Knowledge Available / Training Planned",
+      "status": "Coming Soon",
       "ai_supported": false,
-      "description": "Crop information available — AI leaf disease detection is being calibrated."
+      "description": "Pungent bulb crop prone to rust, white rot (Sclerotium cepivorum), and purple blotch."
     }
   ]
 }

@@ -22,13 +22,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("PlantCareAI")
 
 st.set_page_config(
-    page_title="PlantCare AI — AI-Based Plant Disease Detection & Health Hub",
+    page_title="PlantCare AI — AI-Based Plant Disease Detection",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Active Root & Storage Directories
+# Active root directory resolution
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 IMAGES_DIR = BASE_DIR / "images"
@@ -40,7 +40,7 @@ for directory in [DATA_DIR, IMAGES_DIR, FARMER_IMAGES_DIR, AD_IMAGES_DIR, CROP_I
     directory.mkdir(parents=True, exist_ok=True)
 
 # ============================================================
-# 1. MODEL CLASSES REGISTRY (AI INFERENCE SOURCE OF TRUTH)
+# 1. MODEL CLASSES (SINGLE SOURCE OF TRUTH)
 # ============================================================
 DEFAULT_MODEL_CLASSES = [
     "Pepper Bell Bacterial Spot",
@@ -60,12 +60,331 @@ DEFAULT_MODEL_CLASSES = [
     "Tomato Mosaic Virus",
 ]
 
-# Standard 35 Vegetable Crops Directory
+# Comprehensive Clinical Knowledge Base
+DEEP_DISEASE_KNOWLEDGE = {
+    "Pepper Bell Bacterial Spot": {
+        "crop": "Pepper (Bell)",
+        "scientific_crop": "Capsicum annuum",
+        "category": "Bacterial Infection",
+        "pathogen": "Xanthomonas campestris pv. vesicatoria",
+        "severity": "High",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "overview": "Bacterial Spot of Bell Pepper is a destructive pathogen complex that damages foliar tissue and fruit pods. In high-humidity conditions, it triggers rapid defoliation, exposing fruit clusters to severe solar scalding and creating entry avenues for secondary soft-rot pathogens.",
+        "etiology": "Gram-negative, strictly aerobic, rod-shaped bacterium with a single polar flagellum. The pathogen overwinters internally and externally in seed embryos, volunteer nightshade weeds (Solanum nigrum), and undecomposed plant debris. Transmission occurs via wind-driven rain droplets, high-pressure sprinkler spray, and physical friction between workers/tools and damp foliage.",
+        "symptoms": "• Initial Foliar Stage: Small (1-3 mm) translucent, water-soaked circular to angular lesions on leaf undersides.\n• Advanced Foliar Stage: Lesions enlarge to 4-6 mm, turning dark brownish-black with prominent chlorotic (yellow) borders. Leaves turn yellow and drop prematurely.\n• Pod / Fruit Stage: Small, blister-like raised eruptions that rupture into rough, brown, crater-like warts (5-8 mm), compromising fruit commercial value.\n• Stem Stage: Elongated, rough, cankerous dark fissures that weaken structural branches.",
+        "causes": "Extended canopy wetness periods (> 4 hours), high ambient relative humidity (> 80%), daytime temperatures between 24°C and 32°C, and overhead splash dispersion.",
+        "chemical_treatment": "• Protective Barrier: Fixed Copper Hydroxide (53.8% DF @ 2.0-2.5 g/L) or Copper Oxychloride (50% WP @ 3.0 g/L).\n• Anti-Resistance Mix: Tank-mix Copper Hydroxide with Mancozeb (75% WP @ 2.0 g/L) to release free cupric ions against copper-tolerant bacterial populations.\n• Systemic SAR Activator: Acibenzolar-S-methyl (Actigard 50 WG @ 25-35 g/ha) applied preventatively to trigger natural plant immune defenses.\n• Pre-Harvest Interval (PHI): 3 to 7 days depending on regional copper regulations.",
+        "organic_treatment": "• Microbial Antagonists: Foliar spray of Bacillus subtilis (QST 713 strain) or Bacillus amyloliquefaciens @ 5 ml/L at 7-day intervals.\n• Botanical Shield: Cold-pressed Neem Oil (10,000 ppm Azadirachtin) @ 3-5 ml/L with an organic wetting agent.\n• Seed Sanitization: Hot water seed soak at 50°C (122°F) for precisely 25 minutes prior to nursery sowing.",
+        "prevention": "1. Source exclusively certified pathogen-free seeds.\n2. Adopt subsurface drip irrigation to keep canopies dry.\n3. Enforce a minimum 2 to 3-year crop rotation avoiding all Solanaceae.\n4. Avoid all field operations while morning dew or raindrops persist on foliage.",
+        "fertilizer": "Maintain balanced N:P:K (1:1:2 ratio). Strictly avoid high-nitrogen vegetative feeding (excess urea) which produces soft, succulent epidermal cell walls easily penetrated by bacteria. Ensure adequate Calcium (Ca) and Boron (B) to enhance cellular integrity.",
+        "pest_control": "Control thrips (Frankliniella occidentalis) and flea beetles using bio-insecticides like Spinosad or Beauveria bassiana, as their feeding wounds serve as direct bacterial entry gates.",
+        "farmer_tips": "Prune lower branches (up to 15 cm from ground level) 3 weeks after transplanting to prevent soil-splash bacterial inoculation.",
+        "ideal_climate": "Temperature: 24°C - 32°C | Relative Humidity: > 80% | High splashing rain risk",
+        "economic_threshold": "First appearance of 1-2 angular water-soaked lesions per plant canopy during vegetative or early flowering stage.",
+    },
+    "Pepper Bell Healthy": {
+        "crop": "Pepper (Bell)",
+        "scientific_crop": "Capsicum annuum",
+        "category": "Healthy Crop",
+        "pathogen": "None (Optimum Physiological State)",
+        "severity": "None",
+        "status": "Healthy",
+        "badge": "status-healthy",
+        "overview": "The pepper foliage exhibits optimal cellular turgor, uniform chlorophyll distribution, intact leaf cuticles, and active vegetative and floral development without pathological signs.",
+        "etiology": "Physiologically balanced specimen. Cellular structure shows intact palisade mesophyll, active chloroplasts, robust stomatal regulation, and uncompromised vascular bundles.",
+        "symptoms": "Vibrant deep emerald green color, smooth and crisp leaf margins, intact foliar cuticle layer, strong apical growth shoots, clean flower buds, and absence of necrotic spotting or wilting.",
+        "causes": "Optimal soil aeration, well-regulated drip irrigation, soil pH between 6.0 and 6.8, balanced fertility, and disciplined crop hygiene.",
+        "chemical_treatment": "No corrective chemical intervention is required. Continue preventative monitoring.",
+        "organic_treatment": "Apply bi-weekly foliar applications of liquid seaweed (Ascophyllum nodosum extract @ 2 ml/L) or humic/fulvic acid drenches to support root cation exchange capacity.",
+        "prevention": "1. Maintain scheduled weekly scouting.\n2. Maintain a 5-7 cm organic straw mulch over beds.\n3. Monitor irrigation EC (1.5-2.2 mS/cm) and soil moisture tensiometer levels.",
+        "fertilizer": "Apply balanced water-soluble fertilizer (19:19:19 @ 3 g/L) during vegetative stage; transition to Potassium Nitrate (13:0:45) and Calcium Nitrate during flowering and fruit setting.",
+        "pest_control": "Deploy 15-20 yellow and blue sticky traps per acre to monitor thrips and aphids before populations establish.",
+        "farmer_tips": "Ensure night temperatures remain above 16°C and below 24°C to avoid flower abortion and blossom drop.",
+        "ideal_climate": "Temperature: 20°C - 28°C | Relative Humidity: 55% - 70% | Well-drained loamy soil",
+        "economic_threshold": "N/A (Healthy Baseline Maintenance).",
+    },
+    "Potato Early Blight": {
+        "crop": "Potato",
+        "scientific_crop": "Solanum tuberosum",
+        "category": "Fungal Infection",
+        "pathogen": "Alternaria solani",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "overview": "Early Blight of Potato is an economically significant fungal disease caused by the necrotrophic pathogen Alternaria solani. It targets mature and senescing leaves, reducing functional photosynthetic area and causing secondary dry tuber rot.",
+        "etiology": "Fungus producing large, dark-colored, multi-celled beaked conidia. Overwinters as dormant mycelium or chlamydospores in solanaceous crop debris and infected tubers. Disseminated primarily by air currents, wind-blown dust, rain splash, and mechanical equipment.",
+        "symptoms": "• Foliar: Dark brown to black circular-to-angular lesions characterized by concentric ridges resembling a target board or tree growth rings. Lesions are bordered by narrow chlorotic yellow margins. Begins on oldest lower leaves and progresses acropetally.\n• Stems: Sunken, elongated brown lesions with concentric markings.\n• Tubers: Irregular, sunken, dark leathery lesions with underlying flesh turning brown, dry, and corky.",
+        "causes": "Alternating cycles of high humidity/heavy dew and dry windy weather; plant senescence; nutrient stress (low Nitrogen/Potassium); mechanical leaf injury.",
+        "chemical_treatment": "• Protectant: Chlorothalonil (75% WP @ 2.0 g/L) or Mancozeb (75% WP @ 2.5 g/L) applied prior to row closure.\n• Systemic / Translaminar: Azoxystrobin (23% SC @ 1.0 ml/L), Pyraclostrobin (20% WG @ 1.0 g/L), or Difenoconazole (25% EC @ 0.5 ml/L).\n• Premix Formulations: Fluopyram + Tebuconazole @ 1.0 ml/L.\n• PHI: 7 to 14 days depending on compound.",
+        "organic_treatment": "• Potassium Bicarbonate (Armicarb @ 3.0 g/L) to alter leaf surface pH and inhibit spore germination.\n• Copper Octanoate (Liquid Copper Fungicide @ 2.5 ml/L).\n• Trichoderma harzianum soil drench (2 x 10^8 CFU/g @ 5 g/L).",
+        "prevention": "1. Implement a 3-year rotation away from potato, tomato, and pepper.\n2. Hill up soil generously (at least 10-15 cm cover over tubers) to prevent washdown of fungal spores.\n3. Maintain wide row spacing (75-90 cm) to promote fast canopy drying.",
+        "fertilizer": "Maintain continuous Potassium (K) availability throughout tuber bulking. Plants under nutritional stress or premature senescence are significantly more vulnerable to Alternaria invasion.",
+        "pest_control": "Control Colorado potato beetles and potato flea beetles to prevent chewing damage that provides spore infection courts.",
+        "farmer_tips": "Remove and burn lower yellowing leaves showing target spots before the canopy closes between adjacent rows.",
+        "ideal_climate": "Temperature: 22°C - 30°C | Alternating wet and dry foliar cycles | High wind spore dispersal",
+        "economic_threshold": "5% lower canopy foliar infection observed before tuber bulking phase.",
+    },
+    "Potato Healthy": {
+        "overview": "The potato vine shows robust vegetative growth, dark green compound leaves, firm vascular stems, and active subterranean stolon and tuber development.",
+        "crop": "Potato",
+        "scientific_crop": "Solanum tuberosum",
+        "category": "Healthy Crop",
+        "pathogen": "None (Optimum Physiological State)",
+        "severity": "None",
+        "status": "Healthy",
+        "badge": "status-healthy",
+        "etiology": "Uninfected physiological state. Vascular xylem and phloem vessels are clear, stomatal conductance is optimal, and tuber initiation enzymes are functioning normally.",
+        "symptoms": "Lush, dark emerald compound foliage, thick erect stems, uniform leaf margins, absence of chlorotic flecking or necrosis, clean root stolons, and firm developing tuber skins.",
+        "causes": "Certified virus-free seed tubers, loose and well-aerated sandy loam soil, optimal soil moisture (65-75% field capacity), and balanced base fertilization.",
+        "chemical_treatment": "No chemical treatment is indicated. Continue standard preventative crop management.",
+        "organic_treatment": "Apply biological root inoculants (Glomus intraradices mycorrhizal fungi) at planting and foliar fermented plant juice every 15 days.",
+        "prevention": "1. Hill up soil around potato hills every 2-3 weeks.\n2. Maintain consistent, deep irrigation intervals.\n3. Disinfect tractor tires and spray equipment between field blocks.",
+        "fertilizer": "Apply N-P-K in a 1:2:2 ratio during planting; supplement with Potassium Sulfate (0:0:50 @ 5 g/L foliar) during tuber bulking to boost dry matter content and starch synthesis.",
+        "pest_control": "Inspect the undersides of leaves weekly for green peach aphid (Myzus persicae) colonies to prevent viral transmission.",
+        "farmer_tips": "Halt all nitrogen applications 30 days prior to harvest to encourage natural canopy maturation and tuber skin set.",
+        "ideal_climate": "Temperature: 15°C - 22°C | Soil Moisture: 65% - 75% Field Capacity | Full Sun Exposure",
+        "economic_threshold": "N/A (Healthy Baseline Maintenance).",
+    },
+    "Potato Late Blight": {
+        "overview": "Late Blight of Potato, caused by the oomycete Phytophthora infestans, is an aggressive, destructive plant disease that can destroy entire fields within 7 to 10 days and cause rot in stored tubers.",
+        "crop": "Potato",
+        "scientific_crop": "Solanum tuberosum",
+        "category": "Water Mold / Blight",
+        "pathogen": "Phytophthora infestans",
+        "severity": "Critical",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "etiology": "Oomycete (water mold) organism producing biflagellate motile zoospores inside airborne sporangia. Sporangia germinate directly at 18-24°C or produce 8-12 motile zoospores at 10-15°C. Overwinters primarily in infected tubers left in the soil or cull piles.",
+        "symptoms": "• Foliar: Starts as irregular, water-soaked, pale-to-dark green lesions that turn purplish-brown/black. Under high humidity, a distinctive white, cottony downy mold appears on leaf undersides along the lesion border.\n• Stems: Dark brown to black greasy, girdling lesions causing upper canopy collapse.\n• Tubers: Irregular, sunken, brownish-red or purplish firm dry rot extending 5-15 mm into tuber flesh, often followed by foul bacterial soft rot.",
+        "causes": "Cool, persistent wet weather; extended leaf wetness (> 8-10 hours); relative humidity > 90%; temperatures between 10°C and 21°C.",
+        "chemical_treatment": "• Preventative: Mancozeb (75% WP @ 2.5 g/L), Propineb (70% WP @ 2.5 g/L), or Chlorothalonil (75% WP @ 2.0 g/L).\n• Curative / Anti-Oomycete Systemics: Cymoxanil + Mancozeb (Curzate @ 2.5 g/L), Dimethomorph (50% WP @ 1.0 g/L), Mandipropamid (Revus @ 0.8 ml/L), or Metalaxyl-M + Mancozeb (Ridomil Gold @ 2.5 g/L).\n• Anti-Sporulant: Fluopicolide + Propamocarb (Infinito @ 1.5 ml/L).\n• PHI: 7 to 14 days.",
+        "organic_treatment": "• Preventative Fixed Copper: Bordeaux Mixture (1% copper sulfate + hydrated lime) or Copper Hydroxide @ 2.5 g/L prior to forecast rain events.\n• Biological controls have limited efficacy once late blight sporulation is active in the field.",
+        "prevention": "1. Plant exclusively certified pathogen-tested seed tubers.\n2. Completely destroy all volunteer potato plants and cull piles within a 5 km radius.\n3. Utilize local weather-based Blight Decision Support Systems (DSS) to time sprays before rain fronts.",
+        "fertilizer": "Avoid excessive nitrogen applications which generate dense, slow-drying foliar canopies. Ensure adequate Potassium and Silica to harden cell walls.",
+        "pest_control": "Eradicate alternate solanaceous weed hosts (e.g., Solanum dulcamara, Solanum nigrum) from irrigation canals and field borders.",
+        "farmer_tips": "If late blight field infection exceeds 5%, desiccate (kill) the entire canopy with approved chemical or mechanical flailing 2-3 weeks prior to harvest to prevent tuber contact with active spores.",
+        "ideal_climate": "Temperature: 10°C - 21°C | Relative Humidity: > 90% | Overcast, misty, or rainy weather",
+        "economic_threshold": "Zero-tolerance. Action required upon the very first confirmed leaf lesion in the regional monitoring area.",
+    },
+    "Tomato Bacterial Spot": {
+        "overview": "Bacterial Spot of Tomato is caused by Xanthomonas perforans, X. euvesicatoria, X. gardneri, and X. vesicatoria. It causes extensive foliar necrosis, severe flower blossom drop, and raised scab-like lesions on green and ripening fruit.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Bacterial Infection",
+        "pathogen": "Xanthomonas perforans / euvesicatoria",
+        "severity": "High",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "etiology": "Gram-negative, rod-shaped bacterium transmitted internally and externally on seeds, in volunteer crop residue, and via aerosolized water droplets. Bacteria enter through natural openings (stomata, hydathodes) or mechanical micro-wounds.",
+        "symptoms": "• Foliar: Small (under 3 mm), angular, dark brown to black water-soaked spots with yellow halos. Spots coalesce, causing the leaf tissue to turn brown, dry, and tear, giving the foliage a ragged, scorched appearance.\n• Fruit: Small black spots that expand into raised, rough, dark brown scabs (up to 5 mm) with sunken centers, making fruit unmarketable.\n• Stems & Pedicels: Elongated dark cankers leading to flower blossom abortion.",
+        "causes": "High rainfall, overhead irrigation splash, high relative humidity (> 85%), warm temperatures (25°C to 32°C), and field traffic through wet canopies.",
+        "chemical_treatment": "• Copper Hydroxide (53.8% DF @ 2.0 g/L) tank-mixed with Mancozeb (75% WP @ 2.0 g/L) to counter copper-resistant bacterial strains.\n• Plant Defense Inducer: Acibenzolar-S-methyl (Actigard @ 25-35 g/ha) applied preventatively.\n• Bacteriophage: Specific registered agricultural bacteriophage bio-treatments applied in early evening.\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Streptomyces lydicus (Actinovate @ 1.5 g/L) or Bacillus subtilis (Serenade ASO @ 5 ml/L).\n• Copper Octanoate (Soap-shield @ 2.5 ml/L).\n• Hot-water seed treatment at 50°C for 25 minutes.",
+        "prevention": "1. Use certified pathogen-tested seed.\n2. Install drip irrigation beneath plastic mulch.\n3. Sanitize tomato stakes, wire trellises, and harvest crates with 10% sodium hypochlorite solution between seasons.\n4. Practice a 2-year rotation away from solanaceous crops.",
+        "fertilizer": "Maintain balanced N:P:K nutrition with soil pH 6.2-6.8. Avoid excess nitrogen fertilization which promotes lush, thin-walled vegetative growth.",
+        "pest_control": "Control piercing-sucking insects (stink bugs, leaf-footed bugs) that puncture fruit skin and spread bacteria internally.",
+        "farmer_tips": "Stake and prune indeterminate tomatoes to keep the entire leaf canopy at least 30 cm above soil level.",
+        "ideal_climate": "Temperature: 25°C - 32°C | High relative humidity (> 85%) | Driving rainstorms",
+        "economic_threshold": "First visual appearance of water-soaked angular leaf spots during seedling or early vegetative growth.",
+    },
+    "Tomato Early Blight": {
+        "overview": "Early Blight of Tomato is caused by Alternaria linariae (formerly A. solani). It is a major foliar and stem disease that causes collar rot in young seedlings, progressive lower-leaf defoliation, and sunken leathery fruit rot near the stem calyx.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Fungal Infection",
+        "pathogen": "Alternaria linariae (A. tomatophila)",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "etiology": "Fungus producing large, dark, transverse- and longitudinal-septate conidia. Survives in infected solanaceous crop debris for over a year and spreads via wind, splashing rain, and mechanical contact.",
+        "symptoms": "• Foliar: Dark brown to black circular lesions showing distinct concentric rings (target pattern) surrounded by chlorotic yellow halos. Progresses upward from the oldest bottom foliage.\n• Stems: Dark, sunken collar rot lesions near the soil line on seedlings; elongated target-pattern cankers on mature stems.\n• Fruit: Dark, leathery, sunken spots with concentric rings at the stem end of both green and ripe fruit.",
+        "causes": "Warm, humid conditions (24°C - 29°C), frequent rainfall or heavy dew, overhead irrigation, plant senescence, and nitrogen/potassium nutrient deficiency.",
+        "chemical_treatment": "• Protectants: Mancozeb (75% WP @ 2.5 g/L) or Chlorothalonil (75% WP @ 2.0 g/L).\n• Systemic / Curative Fungicides: Azoxystrobin + Difenoconazole (Amistar Top @ 1.0 ml/L), Boscalid + Pyraclostrobin (Pristine @ 1.0 g/L), or Penthiopyrad (Fontelis @ 1.2 ml/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Bacillus subtilis (Serenade MAX @ 3.0 g/L) applied weekly.\n• Copper Octanoate @ 2.5 ml/L.\n• Apply a 5-8 cm clean straw or compost mulch beneath plants to prevent soil-spore splash.",
+        "prevention": "1. Prune off all bottom foliage up to 30 cm above the ground once plants reach 1 meter in height.\n2. Space plants at least 60 cm apart in rows 1.2 m apart.\n3. Implement a 3-year crop rotation.",
+        "fertilizer": "Maintain consistent potassium and calcium fertilization. Ensure balanced nitrogen to avoid plant stress during heavy fruit load.",
+        "pest_control": "Control flea beetles and tomato hornworms which cause wounds that accelerate fungal spore entry.",
+        "farmer_tips": "Strip diseased lower leaves the moment target spots appear, seal them in plastic bags, and remove them from the field.",
+        "ideal_climate": "Temperature: 24°C - 30°C | High humidity and frequent rainfall | Warm nights",
+        "economic_threshold": "Presence of active target lesions on > 5% of lower canopy leaves before first fruit cluster harvest.",
+    },
+    "Tomato Healthy": {
+        "overview": "The tomato plant demonstrates prime physiological health, robust dark green foliage, vigorous apical growth shoots, clean floral trusses, and absence of visual pathogen symptoms.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Healthy Crop",
+        "pathogen": "None (Optimum Physiological State)",
+        "severity": "None",
+        "status": "Healthy",
+        "badge": "status-healthy",
+        "etiology": "Uncompromised biological state. High photosynthetic rate, normal stomatal conductance, optimal nutrient absorption, and uninhibited vascular transport.",
+        "symptoms": "Uniform deep green leaves, firm crisp stems, robust flowering clusters, active terminal shoots, clean calyxes, and absence of chlorosis, necrosis, or foliar distortion.",
+        "causes": "Fertile well-drained loamy soil (pH 6.2-6.8), 6-8 hours daily direct solar exposure, balanced drip fertigation, and disciplined preventative hygiene.",
+        "chemical_treatment": "No chemical treatment is indicated. Continue standard preventative maintenance.",
+        "organic_treatment": "Apply liquid kelp extract (Ascophyllum nodosum @ 2.0 ml/L) and humic acid foliar drenches every 14 days to sustain natural systemic vigor.",
+        "prevention": "1. Continue routine sucker pruning on indeterminate varieties for canopy aeration.\n2. Keep organic mulch layers clean and intact.\n3. Maintain weekly scouting routines.",
+        "fertilizer": "Apply low-nitrogen, high-phosphorus and potassium fertilizers (e.g., 5-10-10 or 13-0-45 Potassium Nitrate @ 3 g/L) during active fruit setting to support fruit development.",
+        "pest_control": "Inspect leaf undersides weekly for whiteflies, spider mites, and tomato pinworms; deploy yellow sticky cards.",
+        "farmer_tips": "Water consistently at the root zone to prevent soil moisture swings that trigger Blossom End Rot (BER) and fruit splitting.",
+        "ideal_climate": "Temperature: 21°C - 28°C | Solar Exposure: 6-8 hrs/day | Soil pH 6.2 - 6.8",
+        "economic_threshold": "N/A (Healthy Baseline Maintenance).",
+    },
+    "Tomato Late Blight": {
+        "overview": "Late Blight of Tomato, caused by Phytophthora infestans, is an aggressive oomycete pathogen capable of rapidly destroying entire tomato crops, rotting foliage, stems, and fruit within days.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Water Mold / Blight",
+        "pathogen": "Phytophthora infestans",
+        "severity": "Critical",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "etiology": "Oomycete producing airborne sporangia and motile biflagellate zoospores. Spreads through air currents and cool storm fronts, surviving in volunteer potatoes and solanaceous weeds.",
+        "symptoms": "• Foliar: Large, irregular, water-soaked oily greenish-brown patches that rapidly turn dark brown to black. In humid air, a delicate white fuzzy downy mold develops on the lower leaf surface along lesion margins.\n• Stems: Dark brown to black greasy girdling lesions that cause branch collapse.\n• Fruit: Large, firm, greasy olive-brown to bronze sunken lesions with a rough surface, affecting both green and ripe tomatoes.",
+        "causes": "Cool, humid, overcast, and rainy weather; temperatures between 12°C and 22°C; relative humidity > 90%; prolonged canopy moisture (> 8 hours).",
+        "chemical_treatment": "• Preventative Protectants: Mancozeb (75% WP @ 2.5 g/L), Chlorothalonil (75% WP @ 2.0 g/L), or Copper Oxychloride (50% WP @ 3.0 g/L).\n• Curative Systemics: Mandipropamid (Revus 250 SC @ 0.8 ml/L), Dimethomorph (50% WP @ 1.0 g/L), Cymoxanil + Mancozeb (Curzate @ 2.5 g/L), or Famoxadone + Cymoxanil (Tanos @ 1.0 g/L).\n• Anti-Sporulant: Fluopicolide + Propamocarb (Infinito @ 1.5 ml/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Preventative Fixed Copper (Bordeaux mixture or Copper Hydroxide @ 2.5 g/L) applied prior to forecast rain.\n• Heavily infected plants must be rogued out and destroyed immediately.",
+        "prevention": "1. Plant late-blight resistant tomato cultivars (e.g., Mountain Magic, Defiant, Iron Lady).\n2. Maximize row spacing (90-120 cm).\n3. Keep high-tunnel and greenhouse ventilation fans running overnight to prevent dew condensation.",
+        "fertilizer": "Avoid high-nitrogen feeding which produces dense, humid vegetative canopies.",
+        "pest_control": "Eliminate wild nightshade species and cull potato piles around the field perimeter.",
+        "farmer_tips": "Immediately bag and remove infected plants from the plot on a dry afternoon. Do not leave pulled infected vines on the ground.",
+        "ideal_climate": "Temperature: 12°C - 22°C | Relative Humidity: > 90% | Overcast, misty, or rainy weather",
+        "economic_threshold": "Zero-tolerance. Implement immediate intervention upon first confirmed regional diagnosis.",
+    },
+    "Tomato Leaf Mold": {
+        "overview": "Tomato Leaf Mold is caused by the biotrophic fungus Passalora fulva (formerly Cladosporium fulvum). It is a major disease in greenhouses, polyhouses, and high tunnels with restricted airflow and high relative humidity.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Fungal Infection",
+        "pathogen": "Passalora fulva (Cladosporium fulvum)",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "etiology": "Fungus producing branched conidiophores with pale olive conidia. Conidia survive for months in greenhouse framework and crop debris. Spreads via air currents, splashing water, and clothing/tools.",
+        "symptoms": "• Foliar: Starts as pale green to light yellow diffuse spots with indistinct borders on the upper leaf surface. The corresponding lower leaf surface develops a dense, olive-green to velvety brown mold growth. Leaves eventually turn yellow, curl, wither, and drop.\n• Blossoms & Fruit: Blossoms can abort; fruit rarely develops a smooth black stem-end rot.",
+        "causes": "High relative humidity (> 85%), warm temperatures (20°C to 25°C), dense foliar canopies, and poor air exchange in protected growing environments.",
+        "chemical_treatment": "• Protective Sprays: Chlorothalonil (75% WP @ 2.0 g/L) or Copper Hydroxide (53.8% DF @ 2.0 g/L).\n• Systemic / Translaminar: Azoxystrobin (23% SC @ 1.0 ml/L), Difenoconazole (25% EC @ 0.5 ml/L), or Cyprodinil + Fludioxonil (Switch @ 0.8 g/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Potassium Bicarbonate (MilStop @ 3.0 g/L) applied at 5-day intervals.\n• Bio-fungicide: Bacillus amyloliquefaciens (Double Nickel @ 2.5 g/L).\n• Horticultural mineral oil @ 5 ml/L.",
+        "prevention": "1. Install horizontal airflow fans in high tunnels and greenhouses.\n2. Vent structures at dusk to lower nighttime relative humidity.\n3. Prune interior foliage and indeterminate suckers to allow light penetration.",
+        "fertilizer": "Ensure adequate potassium and calcium to strengthen foliar cell walls against fungal hyphae penetration.",
+        "pest_control": "Scout greenhouse structures for aphids and whiteflies which leave honeydew that promotes secondary sooty molds.",
+        "farmer_tips": "Never water plants overhead in enclosed structures. Install drip lines under plastic mulch for complete moisture control.",
+        "ideal_climate": "Temperature: 21°C - 26°C | Relative Humidity: > 85% | Stagnant protected air",
+        "economic_threshold": "Visual observation of olive-green velvety sporulation on > 3% of middle canopy leaves in greenhouse crops.",
+    },
+    "Tomato Septoria Leaf Spot": {
+        "overview": "Septoria Leaf Spot of Tomato is caused by Septoria lycopersici. It is a common and destructive foliar fungal disease that causes severe progressive lower defoliation, exposing developing fruit to sunscald and reducing total yield.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Fungal Infection",
+        "pathogen": "Septoria lycopersici",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "etiology": "Fungus producing filiform (needle-like) hyaline conidia inside dark pycnidia fruiting bodies. Overwinters on diseased solanaceous plant residue and solanaceous weeds (horsenettle). Conidia are extruded in gelatinous tendrils and spread by rain splash, wind, insects, and workers.",
+        "symptoms": "• Foliar: Numerous small (2-3 mm), circular spots with dark brown margins and light gray or tan centers. Tiny black specks (pycnidia fruiting bodies) are visible within the center of mature spots.\n• Stems & Calyxes: Small, elongated, dark spots with pycnidia.\n• Fruit: Direct fruit infection is rare, but severe defoliation causes fruit sunscald.",
+        "causes": "Moderate temperatures (20°C to 27°C), prolonged leaf wetness (> 8 hours), frequent rainfall, overhead irrigation, and dense ground-level foliage.",
+        "chemical_treatment": "• Protectants: Chlorothalonil (75% WP @ 2.0 g/L), Mancozeb (75% WP @ 2.5 g/L), or Copper Hydroxide (53.8% DF @ 2.0 g/L).\n• Systemics: Azoxystrobin + Difenoconazole (Amistar Top @ 1.0 ml/L) or Pyraclostrobin (Cabrio @ 1.0 g/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Liquid Copper Octanoate @ 2.5 ml/L.\n• Bacillus subtilis (Serenade ASO @ 5 ml/L).\n• Apply clean straw or black plastic mulch to eliminate soil-splash spore transmission.",
+        "prevention": "1. Maintain a strict 3-year rotation away from nightshade crops.\n2. Prune the bottom 30 cm of foliage to break splash transmission.\n3. Disinfect tomato cages and stakes between growing seasons.",
+        "fertilizer": "Apply balanced organic fertilizers; avoid excessive nitrogen that increases foliar density.",
+        "pest_control": "Eradicate horsenettle, groundcherry, and jimsonweed in field borders.",
+        "farmer_tips": "Do not overhead water. Always inspect oldest lower leaves first when scouting for Septoria outbreaks.",
+        "ideal_climate": "Temperature: 20°C - 27°C | High rainfall / Heavy dew | High humidity",
+        "economic_threshold": "Presence of circular spots with black pycnidia on > 5% of lower canopy foliage during early fruiting.",
+    },
+    "Tomato Spider Mites": {
+        "overview": "Two-Spotted Spider Mite (Tetranychus urticae) infestation is a serious pest problem in tomatoes. These microscopic arachnids puncture foliar epidermal cells to suck out plant sap, causing chlorosis, stippling, bronzing, and foliar desiccation.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Pest Infestation",
+        "pathogen": "Tetranychus urticae (Two-Spotted Spider Mite)",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "etiology": "Arachnid pest with a rapid lifecycle (egg to adult in 5-7 days at 30°C). Females lay up to 200 eggs on leaf undersides. Hot, dry, and dusty microclimates trigger exponential population growth.",
+        "symptoms": "• Foliar: Fine yellow or white stippling speckles across the upper leaf surface. Under severe infestation, leaves turn bronze, dry out like paper, and fine silky webs envelope leaf axils and growing tips.",
+        "causes": "High temperatures (> 28°C), low relative humidity (< 50%), dusty roadways, drought-stressed plants, and overuse of broad-spectrum insecticides that kill natural predators.",
+        "chemical_treatment": "• Selective Acaricides / Miticides: Abamectin (1.9% EC @ 0.5 ml/L), Bifenazate (Floramite @ 0.8 ml/L), Spiromesifen (Oberon 240 SC @ 0.8 ml/L), or Fenpyroximate (5% EC @ 1.0 ml/L).\n• Alternate miticide modes of action (IRAC groups) to prevent resistance development.\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Insecticidal Soap (Potassium salts of fatty acids @ 10 ml/L).\n• Cold-pressed Neem Oil (10,000 ppm @ 4 ml/L) with emulsifier.\n• Horticultural mineral oil (1-2% concentration) applied with high pressure.",
+        "prevention": "1. Keep crops adequately hydrated to eliminate drought stress.\n2. Dampen dusty farm roadways to reduce dust that shields spider mites from predators.\n3. Release beneficial predatory mites (Phytoseiulus persimilis or Neoseiulus californicus).",
+        "fertilizer": "Avoid excess nitrogen fertilization; high foliar nitrogen increases mite reproduction rates.",
+        "pest_control": "Avoid broad-spectrum synthetic pyrethroid insecticides which eliminate natural beneficial mite predators (lady beetles, predatory thrips).",
+        "farmer_tips": "A strong jet of clean water aimed at the undersides of leaves can physically dislodge mite colonies in small plots.",
+        "ideal_climate": "Temperature: > 28°C | Relative Humidity: < 50% | Dusty, drought-stressed microclimate",
+        "economic_threshold": "Presence of active mite stippling or live nymphs on > 10% of sampled mid-canopy leaves.",
+    },
+    "Tomato Target Spot": {
+        "overview": "Target Spot of Tomato is caused by the fungal pathogen Corynespora cassiicola. It causes foliar blighting, stem lesions, and sunken circular pitted craters on mature fruit in warm, humid production regions.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Fungal Infection",
+        "pathogen": "Corynespora cassiicola",
+        "severity": "Medium",
+        "status": "Disease Detected",
+        "badge": "status-warning",
+        "etiology": "Fungus producing large, multi-septate cylindrical conidia. Survives in crop residue and alternative weed hosts. Dispersed by wind, rain splash, and mechanical equipment.",
+        "symptoms": "• Foliar: Pinpoint brown spots expanding into circular lesions (up to 1 cm) with light brown centers, dark margins, and subtle concentric rings. Lesions often develop yellow halos.\n• Stems: Dark brown, elongated lesions.\n• Fruit: Small brown specks that enlarge into sunken circular pits with dark centers on green or ripe fruit.",
+        "causes": "Warm temperatures (25°C to 32°C), high relative humidity (> 80%), prolonged canopy wetness, and poor air movement in dense canopies.",
+        "chemical_treatment": "• Protectants: Chlorothalonil (75% WP @ 2.0 g/L) or Mancozeb (75% WP @ 2.5 g/L).\n• Systemic Fungicides: Azoxystrobin (23% SC @ 1.0 ml/L), Boscalid + Pyraclostrobin (Pristine @ 1.0 g/L), or Penthiopyrad (Fontelis @ 1.2 ml/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Bacillus amyloliquefaciens (Double Nickel @ 2.5 g/L).\n• Liquid copper octanoate @ 2.5 ml/L.\n• Apply a 5-8 cm organic mulch layer.",
+        "prevention": "1. Increase plant and row spacing to ensure rapid leaf drying.\n2. Prune indeterminate vines and stake securely.\n3. Implement a 3-year crop rotation.",
+        "fertilizer": "Provide consistent calcium and potassium to maintain structural fruit and leaf cuticle integrity.",
+        "pest_control": "Control alternate weed hosts and scout foliage weekly during warm, rainy weather.",
+        "farmer_tips": "Harvest mature green or blushing fruit promptly to minimize exposure to fruit-lesion infections.",
+        "ideal_climate": "Temperature: 25°C - 32°C | High relative humidity (> 80%) | Moderate to high rainfall",
+        "economic_threshold": "Observation of active target lesions on > 5% of mid-canopy leaves during flowering.",
+    },
+    "Tomato Yellow Leaf Curl Virus": {
+        "overview": "Tomato Yellow Leaf Curl Virus (TYLCV) is a destructive Begomovirus (family Geminiviridae). It causes severe plant stunting, upward leaf cupping, chlorosis, and near-total flower abortion, causing up to 100% crop loss if infection occurs before flowering.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Viral Disease",
+        "pathogen": "Tomato Yellow Leaf Curl Geminivirus (TYLCV)",
+        "severity": "Critical",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "etiology": "Circular single-stranded DNA virus transmitted persistently by the sweetpotato/silverleaf whitefly (Bemisia tabaci). The virus is not seed-borne or mechanically transmitted through touch.",
+        "symptoms": "• Foliar: Severe upward curling and cupping of leaflets, pronounced interveinal chlorosis (yellowing), reduced leaf size, bushy stunted plant habit, and complete failure to set new fruit.\n• Whole Plant: Erect, compact, stunted habit resembling a floral rosette.",
+        "causes": "High populations of viruliferous whiteflies (Bemisia tabaci); warm arid weather; proximity to older infected solanaceous fields.",
+        "chemical_treatment": "• No chemical viricide exists. Management targets the whitefly insect vector:\n• Systemic Neonicotinoids: Imidacloprid (17.8% SL @ 0.5 ml/L) or Thiamethoxam (25% WG @ 0.3 g/L) applied as seedling drench.\n• Selective Feeding Blockers: Pymetrozine (50% WDG @ 0.6 g/L), Flonicamid (50% WG @ 0.4 g/L), or Cyantraniliprole (Benevia @ 1.5 ml/L).\n• PHI: 3 to 7 days.",
+        "organic_treatment": "• Entomopathogenic Fungi: Beauveria bassiana (1 x 10^8 CFU/ml @ 3 ml/L) sprayed during late afternoon.\n• Cold-pressed Neem Oil (10,000 ppm @ 4-5 ml/L).\n• Yellow sticky traps (25-30 traps per acre).",
+        "prevention": "1. Plant exclusively TYLCV-resistant tomato hybrids (e.g., Tygress, Charger, Invicta).\n2. Install 50-mesh insect screening on high tunnels.\n3. Deploy silver reflective mulches to repel incoming whiteflies.",
+        "fertilizer": "Maintain healthy organic soil conditions with balanced nutrition to support uninfected neighboring plants.",
+        "pest_control": "Deploy yellow sticky cards (1 card per 20 sq meters) to monitor and mass-trap whitefly populations.",
+        "farmer_tips": "Immediately pull, bag, and destroy symptomatic plants to prevent them from serving as viral reservoirs for whiteflies.",
+        "ideal_climate": "Temperature: > 26°C | Abundant whitefly vector populations | Arid to sub-humid seasons",
+        "economic_threshold": "Zero-tolerance for whitefly vectors in early seedling and vegetative stages.",
+    },
+    "Tomato Mosaic Virus": {
+        "overview": "Tomato Mosaic Virus (ToMV) is a highly contagious Tobamovirus. It causes leaf mottling, distortion, and internal browning of tomato fruit. It is mechanically stable and can persist in dried plant residue and seed coats for years.",
+        "crop": "Tomato",
+        "scientific_crop": "Solanum lycopersicum",
+        "category": "Viral Disease",
+        "pathogen": "Tomato Mosaic Tobamovirus (ToMV)",
+        "severity": "High",
+        "status": "Disease Detected",
+        "badge": "status-danger",
+        "etiology": "Rigid rod-shaped positive-sense ssRNA virus. Transmitted mechanically via hands, pruning tools, trellising twine, contaminated seed coats, and tobacco products. Not transmitted by insect vectors like aphids or whiteflies.",
+        "symptoms": "• Foliar: Mottled light and dark green mosaic patterns on leaves, blistering, leaf distortion, 'fern-leaf' or 'shoestring' malformation, and stunted plant vigor.\n• Fruit: Uneven ripening, yellow blotches, and internal brown necrosis (vascular browning) in fruit walls.",
+        "causes": "Mechanical handling with contaminated hands/tools, planting uncertified seed lots, and workers handling tobacco products prior to touching plants.",
+        "chemical_treatment": "• No chemical viricide exists. Infected plants cannot be cured and must be carefully removed and destroyed.",
+        "organic_treatment": "• Milk Spray Decontamination: Spray 20% non-fat dry milk solution on hands and pruning tools during trellising to neutralize virus particles before they transfer to healthy plants.",
+        "prevention": "1. Plant certified mosaic-resistant seed varieties (labeled ToMV / TMV resistant).\n2. Prohibit smoking and handling tobacco products anywhere near the greenhouse or garden.\n3. Wash hands with warm soapy water before working with plants.",
+        "fertilizer": "Provide balanced organic feed to support neighboring healthy crops.",
+        "pest_control": "Disinfect tools, stakes, and cages with 10% household bleach or 20% non-fat dry milk solution.",
+        "farmer_tips": "Always work in younger, healthy blocks first before entering older or suspect blocks.",
+        "ideal_climate": "Any temperature regime | Mechanical transmission through touch and tools",
+        "economic_threshold": "Zero-tolerance. Rogue out symptomatic plants immediately.",
+    },
+}
+
+# Standard 35 Vegetable Crops Catalog
 DEFAULT_35_CROPS = {
     "Solanaceae": [
-        {"id": "sol_tomato", "name": "Tomato", "scientific_name": "Solanum lycopersicum", "status": "AI Detection Available", "ai_supported": True, "description": "High-value commercial crop. Full AI diagnosis active for 10 pathological conditions."},
-        {"id": "sol_potato", "name": "Potato", "scientific_name": "Solanum tuberosum", "status": "AI Detection Available", "ai_supported": True, "description": "Staple tuber crop. Full AI diagnosis active for Early Blight, Late Blight, and Healthy Foliage."},
-        {"id": "sol_capsicum", "name": "Capsicum / Bell Pepper", "scientific_name": "Capsicum annuum", "status": "AI Detection Available", "ai_supported": True, "description": "Sweet pepper crop. Full AI diagnosis active for Bacterial Spot and Healthy Foliage."},
+        {"id": "sol_tomato", "name": "Tomato", "scientific_name": "Solanum lycopersicum", "status": "AI Detection Available", "ai_supported": True, "description": "High-value commercial crop. Full AI diagnosis available for 10 conditions including Early Blight, Late Blight, Bacterial Spot, and Mites."},
+        {"id": "sol_potato", "name": "Potato", "scientific_name": "Solanum tuberosum", "status": "AI Detection Available", "ai_supported": True, "description": "Staple tuber crop. Full AI diagnosis available for Early Blight, Late Blight, and Healthy Foliage."},
+        {"id": "sol_capsicum", "name": "Capsicum / Bell Pepper", "scientific_name": "Capsicum annuum", "status": "AI Detection Available", "ai_supported": True, "description": "Sweet pepper crop. Full AI diagnosis available for Bacterial Spot and Healthy Foliage."},
         {"id": "sol_brinjal", "name": "Brinjal / Eggplant", "scientific_name": "Solanum melongena", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
         {"id": "sol_chilli", "name": "Chilli", "scientific_name": "Capsicum frutescens", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
@@ -112,7 +431,7 @@ DEFAULT_35_CROPS = {
 }
 
 # ============================================================
-# 2. DATA ACCESS & PERSISTENCE LAYER
+# DATA ACCESS & PERSISTENCE LAYER
 # ============================================================
 def load_json_file(file_path: Path, fallback_data):
     if file_path.is_file():
@@ -145,7 +464,7 @@ def get_diseases_database():
             data = load_json_file(c, {})
             if isinstance(data, dict) and any("Pepper" in k or "Tomato" in k for k in data.keys()):
                 return data
-    return {}
+    return DEEP_DISEASE_KNOWLEDGE
 
 def get_crops_database():
     candidates = [
@@ -176,30 +495,36 @@ def get_farmer_stories():
 def get_advertisements():
     return load_json_file(DATA_DIR / "advertisements.json", [])
 
+def get_model_classes():
+    db = get_diseases_database()
+    if db and len(db.keys()) >= 15 and all(cls in db for cls in DEFAULT_MODEL_CLASSES):
+        return list(db.keys())
+    return DEFAULT_MODEL_CLASSES
+
 def get_disease_detail(condition_name: str):
     db = get_diseases_database()
     if db and condition_name in db:
         return db[condition_name]
     
+    # Fallback to rich built-in deep knowledge
+    if condition_name in DEEP_DISEASE_KNOWLEDGE:
+        return DEEP_DISEASE_KNOWLEDGE[condition_name]
+
     return {
-        "crop": "Vegetable Crop",
+        "crop": "Solanaceous Crop",
         "scientific_crop": "",
-        "category": "General Agronomic Health",
+        "category": "General Condition",
         "severity": "Moderate",
         "status": "Analyzed",
         "badge": "status-warning",
-        "overview": "Comprehensive pathological details for this condition are cataloged in the PlantCare AI Agronomic Hub.",
-        "etiology": "Pathological inoculation favored by high foliar wetness and microclimate fluctuations.",
-        "symptoms": "Visible chlorotic spotting, necrosis, lesions, or vascular wilting across foliar/fruit tissue.",
-        "causes": "Excess canopy humidity, pathogen inoculums, or physiological nutritional imbalance.",
-        "chemical_treatment": "Apply locally registered protective fungicides or bactericides strictly according to label directions.",
-        "organic_treatment": "Foliar application of bio-antagonists (Bacillus subtilis or Trichoderma) and neem oil extract.",
-        "prevention": "Ensure clean seed stock, proper row ventilation, balanced fertigation, and field sanitation.",
-        "fertilizer": "Maintain balanced N-P-K ratios; supplement with Calcium and Potassium.",
-        "pest_control": "Monitor insect vectors (whiteflies, thrips, aphids) regularly.",
-        "farmer_tips": "Conduct field inspections in early morning while symptoms are crisp.",
-        "ideal_climate": "Humid, warm canopy microclimate",
-        "economic_threshold": "Initiate corrective action upon observing 5% foliar damage."
+        "overview": "Detailed information for this prediction is being added to the PlantCare AI knowledge base.",
+        "symptoms": "Visible foliar lesions, chlorosis, or morphological changes as classified by the visual model.",
+        "causes": "Environmental moisture, pathogen inoculums, or physiological stress factors.",
+        "treatment": "Use locally approved products according to label directions and consult an agriculture professional when needed.",
+        "prevention": "Maintain clean seed stock, adequate row aeration, and balanced crop nutrition.",
+        "fertilizer": "Maintain balanced N-P-K nutrition according to soil requirements.",
+        "pest_control": "Monitor insect vectors regularly.",
+        "farmer_tips": "Observe foliage during early morning scouting."
     }
 
 def save_uploaded_asset(uploaded_file, target_folder: Path, prefix: str = "img") -> str:
@@ -215,12 +540,12 @@ def save_uploaded_asset(uploaded_file, target_folder: Path, prefix: str = "img")
     return str(target_path.relative_to(BASE_DIR)).replace("\\", "/")
 
 # ============================================================
-# 3. ULTRA-PREMIUM DYNAMIC ANIMATED & RESPONSIVE CSS
+# CSS DESIGN SYSTEM
 # ============================================================
 def inject_custom_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
     :root {
         --primary: #059669;
@@ -228,205 +553,170 @@ def inject_custom_css():
         --primary-deep: #022c22;
         --primary-light: #ecfdf5;
         --primary-border: #a7f3d0;
-        --accent-emerald: #10b981;
-        --text-main: #091e14;
-        --text-muted: #4a6356;
-        --card-bg: rgba(255, 255, 255, 0.90);
-        --card-border: rgba(226, 236, 230, 0.88);
-        --shadow-sm: 0 4px 14px rgba(6, 78, 59, 0.04);
-        --shadow-md: 0 12px 32px rgba(6, 78, 59, 0.07);
-        --shadow-lg: 0 22px 55px rgba(6, 78, 59, 0.12);
-    }
-
-    /* Ambient Moving Gradient Background */
-    @keyframes ambientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        --text-main: #0d1f17;
+        --text-muted: #52665a;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --card-border: #e2ece6;
+        --shadow-sm: 0 2px 6px rgba(6, 78, 59, 0.04);
+        --shadow-md: 0 10px 25px rgba(6, 78, 59, 0.07);
+        --shadow-lg: 0 18px 45px rgba(6, 78, 59, 0.11);
     }
 
     .stApp {
-        background: linear-gradient(-45deg, #f0fdf4, #ecfdf5, #f7faf8, #e6fcf0);
-        background-size: 400% 400%;
-        animation: ambientShift 20s ease infinite;
+        background-color: #f8faf9;
+        background-image: 
+            radial-gradient(at 10% 12%, rgba(16, 185, 129, 0.09) 0px, transparent 52%),
+            radial-gradient(at 90% 16%, rgba(5, 150, 105, 0.08) 0px, transparent 48%),
+            radial-gradient(at 50% 85%, rgba(52, 211, 153, 0.07) 0px, transparent 55%),
+            radial-gradient(at 88% 88%, rgba(6, 78, 59, 0.06) 0px, transparent 50%);
+        background-attachment: fixed;
         color: var(--text-main);
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* Modern Luxury Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #02261d 0%, #043628 45%, #064e3b 100%);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(180deg, #042f24 0%, #064e3b 100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     [data-testid="stSidebar"] * {
-        color: #f0fdf4 !important;
+        color: #f4fff9 !important;
     }
 
-    /* Auto-Responsive Container Layout */
     .block-container {
-        max-width: 1340px;
+        max-width: 1320px;
         padding-top: 1.8rem;
-        padding-bottom: 4rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
+        padding-bottom: 3.5rem;
     }
 
-    /* Fluid Responsive Hero Banner */
     .hero-banner {
-        padding: 3.4rem 3.2rem;
+        padding: 3.2rem 3rem;
         border-radius: 28px;
-        background: linear-gradient(135deg, #022c22 0%, #044433 35%, #065f46 70%, #047857 100%);
+        background: linear-gradient(135deg, #043628 0%, #064e3b 45%, #065f46 100%);
         color: white;
         box-shadow: var(--shadow-lg);
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        margin-bottom: 2rem;
-        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        margin-bottom: 1.8rem;
     }
-    .hero-banner::before {
+    .hero-banner:after {
         content: "";
         position: absolute;
-        width: 440px;
-        height: 440px;
-        right: -120px;
-        top: -140px;
+        width: 380px;
+        height: 380px;
+        right: -100px;
+        top: -120px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(52, 211, 153, 0.28) 0%, transparent 70%);
-        pointer-events: none;
-    }
-    .hero-banner::after {
-        content: "";
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        left: -80px;
-        bottom: -100px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, transparent 70%);
         pointer-events: none;
     }
     .hero-kicker {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        background: rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(12px);
-        padding: 0.4rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.76rem;
-        font-weight: 800;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: #d1fae5;
-        margin-bottom: 1.1rem;
-        border: 1px solid rgba(255, 255, 255, 0.22);
-    }
-    .hero-title {
-        font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
-        font-size: clamp(2.2rem, 4.2vw, 3.8rem);
-        line-height: 1.15;
-        margin: 0.3rem 0 0.8rem;
-        font-weight: 700;
-        color: #ffffff;
-        letter-spacing: -0.02em;
-    }
-    .hero-desc {
-        max-width: 720px;
-        font-size: clamp(1rem, 1.8vw, 1.15rem);
-        line-height: 1.7;
-        color: #e6fcf0;
-        margin-bottom: 1.5rem;
-    }
-    .hero-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1.2rem;
-        border-radius: 999px;
+        gap: 0.4rem;
         background: rgba(255, 255, 255, 0.14);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        font-size: 0.88rem;
+        padding: 0.35rem 0.95rem;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #d1fae5;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .hero-title {
+        font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+        line-height: 1.15;
+        margin: 0.4rem 0 1rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+    .hero-desc {
+        max-width: 680px;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #ecfdf5;
+        margin-bottom: 1.25rem;
+    }
+    .hero-pill {
+        display: inline-block;
+        padding: 0.45rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.85rem;
         font-weight: 700;
         color: #a7f3d0;
     }
 
-    /* Glassmorphic Luxury Cards */
     .product-card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 22px;
-        padding: 1.8rem 1.9rem;
-        margin: 0.95rem 0;
+        border-radius: 20px;
+        padding: 1.6rem 1.75rem;
+        margin: 0.85rem 0;
         box-shadow: var(--shadow-sm);
-        backdrop-filter: blur(14px);
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-        width: 100%;
+        backdrop-filter: blur(10px);
+        transition: all 0.2s ease-in-out;
     }
     .product-card:hover {
         box-shadow: var(--shadow-md);
         border-color: var(--primary-border);
-        transform: translateY(-2px);
     }
     .product-card h3 {
-        margin: 0 0 0.6rem;
+        margin: 0 0 0.5rem;
         color: var(--primary-dark);
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 800;
     }
     .card-muted {
         color: var(--text-muted);
-        line-height: 1.68;
-        font-size: 0.96rem;
+        line-height: 1.65;
+        font-size: 0.95rem;
     }
 
-    /* Metric Visualizers */
     .metric-container {
         background: #ffffff;
         border: 1px solid var(--card-border);
-        border-radius: 20px;
-        padding: 1.35rem 1.3rem;
+        border-radius: 18px;
+        padding: 1.2rem 1.25rem;
         text-align: center;
         box-shadow: var(--shadow-sm);
-        width: 100%;
-        margin-bottom: 0.75rem;
     }
     .metric-value {
-        font-size: 1.85rem;
+        font-size: 1.8rem;
         font-weight: 850;
         color: var(--primary);
     }
     .metric-label {
         color: var(--text-muted);
         font-size: 0.82rem;
-        font-weight: 750;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-top: 0.35rem;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
     }
 
-    /* Results Banner */
     .result-panel {
-        border-radius: 26px;
-        padding: 2.2rem;
+        border-radius: 24px;
+        padding: 2rem;
         background: #ffffff;
         border: 1px solid var(--card-border);
         box-shadow: var(--shadow-md);
-        margin: 1.2rem 0;
-        width: 100%;
+        margin: 1rem 0;
     }
 
-    /* Status Badges */
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.42rem 1.1rem;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
         border-radius: 999px;
         font-weight: 800;
         font-size: 0.82rem;
+        letter-spacing: 0.02em;
     }
     .status-healthy {
         background: #d1fae5;
@@ -448,31 +738,30 @@ def inject_custom_css():
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        padding: 0.35rem 0.9rem;
+        padding: 0.3rem 0.8rem;
         border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 750;
+        font-size: 0.78rem;
+        font-weight: 700;
         background: #f1f5f9;
-        color: #334155;
+        color: #475569;
         margin-left: 0.5rem;
     }
 
-    /* Probability Grid */
     .prob-grid-row {
         display: grid;
-        grid-template-columns: 260px 1fr 90px;
-        gap: 16px;
+        grid-template-columns: 240px 1fr 85px;
+        gap: 14px;
         align-items: center;
-        margin: 0.85rem 0;
+        margin: 0.75rem 0;
     }
     .prob-label {
-        font-weight: 750;
-        font-size: 0.94rem;
+        font-weight: 700;
+        font-size: 0.92rem;
         color: var(--text-main);
     }
     .prob-track {
-        height: 12px;
-        background: #e8f1ec;
+        height: 10px;
+        background: #e8f0ec;
         border-radius: 999px;
         overflow: hidden;
     }
@@ -483,150 +772,129 @@ def inject_custom_css():
     }
     .prob-pct {
         text-align: right;
-        font-weight: 850;
+        font-weight: 800;
         color: var(--primary-dark);
-        font-size: 0.96rem;
+        font-size: 0.95rem;
     }
 
-    /* 2x2 Info Grid */
     .info-layout-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.35rem;
-        margin-top: 1.1rem;
+        gap: 1.25rem;
+        margin-top: 1rem;
     }
     .info-box {
         background: #ffffff;
         border: 1px solid var(--card-border);
-        border-radius: 18px;
-        padding: 1.45rem;
+        border-radius: 16px;
+        padding: 1.35rem;
     }
     .info-box-title {
-        font-size: 1.02rem;
+        font-size: 0.98rem;
         font-weight: 800;
         color: var(--primary-dark);
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.45rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.45rem;
     }
     .info-box-text {
-        font-size: 0.93rem;
+        font-size: 0.9rem;
         color: var(--text-main);
-        line-height: 1.65;
+        line-height: 1.6;
         margin: 0;
     }
 
-    /* Sponsored Card */
     .ad-card {
         background: #ffffff;
-        border: 1px solid #bbf7d0;
-        border-radius: 24px;
-        padding: 1.8rem;
-        margin: 1.4rem 0;
+        border: 1px solid #c7eed8;
+        border-radius: 22px;
+        padding: 1.6rem;
+        margin: 1.2rem 0;
         box-shadow: var(--shadow-md);
-        width: 100%;
+        position: relative;
+        overflow: hidden;
     }
     .ad-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.85rem;
+        margin-bottom: 0.75rem;
     }
     .ad-badge {
-        font-size: 0.74rem;
-        font-weight: 850;
-        letter-spacing: 0.1em;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         background: #ecfdf5;
         color: #065f46;
-        padding: 0.3rem 0.85rem;
+        padding: 0.25rem 0.75rem;
         border-radius: 999px;
         border: 1px solid #a7f3d0;
     }
     .ad-title {
-        font-size: 1.35rem;
+        font-size: 1.28rem;
         font-weight: 850;
         color: #064e3b;
-        margin: 0.4rem 0;
+        margin: 0.35rem 0;
     }
 
     .disclaimer-card {
-        font-size: 0.86rem;
+        font-size: 0.84rem;
         color: #64748b;
-        background: #ffffff;
-        border-left: 4px solid #059669;
-        padding: 0.95rem 1.25rem;
-        border-radius: 0 14px 14px 0;
-        margin-top: 1.6rem;
-        line-height: 1.65;
-        box-shadow: var(--shadow-sm);
+        background: #f8faf9;
+        border-left: 3px solid #cbd5e1;
+        padding: 0.85rem 1.15rem;
+        border-radius: 0 10px 10px 0;
+        margin-top: 1.5rem;
+        line-height: 1.6;
     }
 
     .app-footer-bar {
-        margin-top: 4.5rem;
-        padding: 2.2rem 0.5rem 1.8rem 0.5rem;
+        margin-top: 4rem;
+        padding: 2rem 0.5rem 1.5rem 0.5rem;
         border-top: 1px solid var(--card-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: var(--text-muted);
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         flex-wrap: wrap;
-        gap: 1.2rem;
+        gap: 1rem;
     }
     .footer-brand {
-        font-weight: 850;
+        font-weight: 800;
         color: var(--primary-dark);
-        font-size: 1.05rem;
+        font-size: 1rem;
     }
 
-    /* ============================================================
-       MOBILE VIEWPORT ADAPTIVE RESPONSIVENESS (< 850px)
-       ============================================================ */
     @media (max-width: 850px) {
-        .block-container {
-            padding-left: 0.85rem !important;
-            padding-right: 0.85rem !important;
-            padding-top: 1rem !important;
-        }
-        .hero-banner {
-            padding: 2rem 1.4rem !important;
-            border-radius: 20px !important;
-        }
-        .hero-title {
-            font-size: 2rem !important;
-        }
-        .product-card {
-            padding: 1.4rem 1.25rem !important;
-            border-radius: 18px !important;
-        }
         .prob-grid-row {
-            grid-template-columns: 1fr !important;
-            gap: 6px !important;
+            grid-template-columns: 1fr;
+            gap: 6px;
         }
         .prob-pct {
-            text-align: left !important;
+            text-align: left;
         }
         .info-layout-grid {
-            grid-template-columns: 1fr !important;
-            gap: 0.9rem !important;
+            grid-template-columns: 1fr;
         }
-        .result-panel {
-            padding: 1.5rem 1.25rem !important;
-            border-radius: 20px !important;
+        .hero-title {
+            font-size: 2.1rem;
+        }
+        .hero-banner {
+            padding: 2.25rem 1.75rem;
         }
         .app-footer-bar {
-            flex-direction: column !important;
-            text-align: center !important;
-            gap: 0.8rem !important;
+            flex-direction: column;
+            text-align: center;
         }
     }
     </style>
     """, unsafe_allow_html=True)
 
 # ============================================================
-# 4. DEEP LEARNING MODEL ENGINE & INFERENCE
+# MODEL LOADING & INFERENCE ENGINE
 # ============================================================
 def find_model_path():
     candidates = [
@@ -698,13 +966,13 @@ def validate_image_quality(img):
     brightness = 0.299 * r + 0.587 * g + 0.114 * b
     warnings = []
     if brightness < 40:
-        warnings.append("The image appears dark. Ensure adequate illumination for reliable confidence.")
+        warnings.append("The image appears dark. Ensure adequate lighting for reliable confidence.")
     elif brightness > 225:
-        warnings.append("The image appears overexposed. Ensure leaf/fruit texture is clearly visible.")
+        warnings.append("The image appears overexposed. Ensure leaf texture is clearly visible.")
     var = stat.var
     avg_var = sum(var[:3]) / 3.0
     if avg_var < 100:
-        warnings.append("The image appears soft in focus. A sharper, focused photo is recommended.")
+        warnings.append("The image appears soft in focus. A sharper photo is recommended.")
     return warnings
 
 def validate_and_load_image(uploaded_file):
@@ -764,10 +1032,10 @@ def execute_adaptive_prediction(model, image, model_classes):
         except Exception:
             continue
 
-    raise RuntimeError("Unable to complete screening for this image. Please upload a clear leaf/fruit photo and retry.")
+    raise RuntimeError("Unable to complete screening for this image. Please upload a clear leaf photo and retry.")
 
 # ============================================================
-# 5. WEATHER & SPRAY ADVISORY ENGINE
+# WEATHER ADVISORY ENGINE
 # ============================================================
 def get_live_weather_data(latitude: float, longitude: float):
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,precipitation_probability,wind_speed_10m&timezone=auto"
@@ -781,7 +1049,7 @@ def get_live_weather_data(latitude: float, longitude: float):
             "relative_humidity_pct": current.get("relative_humidity_2m", 70.0),
             "rain_probability_pct": current.get("precipitation_probability", 10.0),
             "wind_speed_kmh": current.get("wind_speed_10m", 8.0),
-            "source": "Open-Meteo Satellite API"
+            "source": "Open-Meteo Meteorological API"
         }, None
     except Exception as exc:
         return None, f"Could not connect to live weather service: {exc}"
@@ -803,7 +1071,7 @@ def calculate_spray_advisory(temp, humidity, rain_prob, wind_speed, rules):
         reasons.append(f"High wind speed ({wind_speed:.1f} km/h > {spray_limits['max_wind_speed_kmh']} km/h) creates significant spray drift hazard.")
     if rain_prob > spray_limits["max_rain_probability_pct"]:
         suitable = False
-        reasons.append(f"High rain chance ({rain_prob:.0f}% > {spray_limits['max_rain_probability_pct']}%) risks chemical wash-off before foliar uptake.")
+        reasons.append(f"High rain chance ({rain_prob:.0f}% > {spray_limits['max_rain_probability_pct']}%) risks pesticide wash-off before plant uptake.")
     if temp > spray_limits["max_temperature_c"]:
         suitable = False
         reasons.append(f"Elevated temperature ({temp:.1f}°C) may cause foliar scorch and fast droplet evaporation.")
@@ -811,7 +1079,7 @@ def calculate_spray_advisory(temp, humidity, rain_prob, wind_speed, rules):
         suitable = False
         reasons.append(f"Low temperature ({temp:.1f}°C) slows systemic chemical absorption.")
     if humidity > spray_limits["max_relative_humidity_pct"]:
-        reasons.append(f"High humidity ({humidity:.0f}%) extends drying time and may encourage spore germination.")
+        reasons.append(f"High humidity ({humidity:.0f}%) extends drying time and may trigger fungal spore germination.")
 
     status = "Favorable (Safe Application Window)" if suitable else "Unfavorable (Postpone Spraying)"
     return status, reasons
@@ -836,7 +1104,7 @@ def calculate_disease_risks(temp, humidity, rules):
     return active_risks
 
 # ============================================================
-# 6. GEOSPATIAL MAP RESOURCE QUERY
+# GEOSPATIAL MAP QUERY
 # ============================================================
 def maps_query_url(lat, lon, query):
     return f"https://www.google.com/maps/search/{quote_plus(query)}/@{lat},{lon},14z"
@@ -855,7 +1123,7 @@ def query_nearby_plant_care(lat, lon, limit=8):
     );
     out center tags;
     """
-    headers = {"User-Agent": "PlantCareAI/8.0 (Commercial Agritech AI)"}
+    headers = {"User-Agent": "PlantCareAI/7.0 (Commercial Agritech AI)"}
     endpoints = [
         "https://overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
@@ -912,7 +1180,7 @@ def query_nearby_plant_care(lat, lon, limit=8):
     return results
 
 # ============================================================
-# 7. EXPORTABLE PLANT HEALTH REPORT GENERATOR
+# REPORT GENERATOR
 # ============================================================
 def generate_plain_text_report(p, info):
     top5_formatted = "\n".join([f"  {i}. {n} — {v:.2f}%" for i, (n, v) in enumerate(p["top5"], 1)])
@@ -920,7 +1188,6 @@ def generate_plain_text_report(p, info):
     return f"""======================================================================
 PLANTCARE AI — PLANT HEALTH SCREENING DOSSIER
 Powered by SEA AUTO
-Developed by Madhav Kumar
 ======================================================================
 Screening Date & Time : {p["timestamp"]}
 Crop Name             : {p["plant"]}
@@ -935,12 +1202,7 @@ Confidence Level      : {p["confidence"]:.2f}%
 {info.get("overview", "N/A")}
 
 ----------------------------------------------------------------------
-2. PATHOGEN ETIOLOGY & LIFE CYCLE
-----------------------------------------------------------------------
-{info.get("etiology", "N/A")}
-
-----------------------------------------------------------------------
-3. VISUAL SYMPTOMS & PATHOLOGICAL CAUSES
+2. VISUAL SYMPTOMS & PATHOLOGICAL CAUSES
 ----------------------------------------------------------------------
 Symptoms:
 {info.get("symptoms", "N/A")}
@@ -949,20 +1211,17 @@ Possible Causes:
 {info.get("causes", "N/A")}
 
 ----------------------------------------------------------------------
-4. TREATMENT & MANAGEMENT REGIMES
+3. TREATMENT & MANAGEMENT REGIMES
 ----------------------------------------------------------------------
 {info.get("chemical_treatment", info.get("treatment", "N/A"))}
 
-Organic Alternative:
-{info.get("organic_treatment", "N/A")}
-
 ----------------------------------------------------------------------
-5. PREVENTATIVE AGRONOMIC SCHEDULE
+4. PREVENTATIVE AGRONOMIC SCHEDULE
 ----------------------------------------------------------------------
 {info.get("prevention", "N/A")}
 
 ----------------------------------------------------------------------
-6. SMART FERTILIZER & PEST CONTROL GUIDANCE
+5. SMART FERTILIZER & PEST CONTROL GUIDANCE
 ----------------------------------------------------------------------
 Fertilizer Guidance:
 {info.get("fertilizer", "N/A")}
@@ -974,7 +1233,7 @@ Farmer / Grower Tips:
 {info.get("farmer_tips", "N/A")}
 
 ----------------------------------------------------------------------
-7. AI PROBABILITY DISTRIBUTION (TOP 5)
+6. AI PROBABILITY DISTRIBUTION (TOP 5)
 ----------------------------------------------------------------------
 {top5_formatted}
 
@@ -982,12 +1241,12 @@ Farmer / Grower Tips:
 Disclaimer: AI-assisted visual screening is intended as an initial 
 assessment. Use locally approved products according to label directions 
 and consult an agriculture professional when needed.
-Developed by Madhav Kumar | © 2026 PlantCare AI. All rights reserved.
+© 2026 PlantCare AI. All rights reserved.
 ======================================================================
 """
 
 # ============================================================
-# INITIALIZE SESSION STATE & MODEL
+# SESSION STATE & MODEL INITIALIZATION
 # ============================================================
 if "prediction_data" not in st.session_state:
     st.session_state.prediction_data = None
@@ -1026,10 +1285,10 @@ def render_sponsored_partner_card():
     <div class="ad-card">
         <div class="ad-header">
             <span class="ad-badge">✦ Featured Partner</span>
-            <span style="font-size: 0.82rem; color: #64748b; font-weight: 700;">{top_ad.get('company', 'SEA AUTO Ecosystem')}</span>
+            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">{top_ad.get('company', 'SEA AUTO Ecosystem')}</span>
         </div>
         <div class="ad-title">{html.escape(top_ad.get('title', ''))}</div>
-        <div style="font-size: 0.96rem; color: #334155; line-height: 1.65; margin-bottom: 0.85rem;">
+        <div style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 0.75rem;">
             {html.escape(top_ad.get('description', ''))}
         </div>
     </div>
@@ -1050,9 +1309,9 @@ def render_sidebar():
     with st.sidebar:
         st.markdown("""
         <div style="padding: 0.5rem 0 1.2rem;">
-            <div style="font-size: 2.3rem;">🌿</div>
-            <div style="font-size: 1.6rem; font-weight: 850; letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif;">PlantCare AI</div>
-            <div style="opacity: 0.82; font-size: 0.82rem; margin-top: 0.25rem;">
+            <div style="font-size: 2.2rem;">🌿</div>
+            <div style="font-size: 1.55rem; font-weight: 850; letter-spacing: -0.02em;">PlantCare AI</div>
+            <div style="opacity: 0.8; font-size: 0.82rem; margin-top: 0.3rem;">
                 AI-Powered Plant Health Screening
             </div>
         </div>
@@ -1086,10 +1345,8 @@ def render_sidebar():
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("""
-        <div style="padding: 1.1rem; border-radius: 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <div style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75;">DEVELOPER</div>
-            <div style="font-weight: 800; font-size: 1.05rem; margin-top: 0.2rem; color: #ffffff;">Madhav Kumar</div>
-            <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 750; margin-top: 0.45rem;">✦ Powered by SEA AUTO</div>
+        <div style="padding: 1.1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
+            <div style="font-size: 0.8rem; color: #a7f3d0; font-weight: 700;">✦ Powered by SEA AUTO</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1101,14 +1358,13 @@ def render_sidebar():
 def render_home_page():
     st.markdown("""
     <div class="hero-banner">
-        <div class="hero-kicker">✦ SMART AGRITECH INTELLIGENCE</div>
+        <div class="hero-kicker">✦ SMART PLANT HEALTH</div>
         <div class="hero-title">PlantCare AI</div>
-        <div style="font-size: 1.38rem; font-weight: 700; color: #a7f3d0; margin-bottom: 0.6rem;">
-            AI-Powered Plant Health Screening & Diagnostic Engine
+        <div style="font-size: 1.35rem; font-weight: 700; color: #a7f3d0; margin-bottom: 0.5rem;">
+            AI-Powered Plant Health Screening
         </div>
         <div class="hero-desc">
-            Upload plant leaf or fruit imagery to receive objective AI-assisted health assessments, 
-            clinical pathology insights, and practical crop-care guidance across 35 agricultural crops.
+            Upload a plant leaf image to receive an AI-assisted health assessment and practical plant-care guidance.
         </div>
         <span class="hero-pill">🌿 Powered by SEA AUTO</span>
     </div>
@@ -1116,11 +1372,11 @@ def render_home_page():
 
     btn_col1, btn_col2, btn_col3 = st.columns([1.2, 1.4, 2.2])
     with btn_col1:
-        if st.button("Analyze Leaf / Fruit", type="primary", use_container_width=True):
+        if st.button("Analyze Leaf", type="primary", use_container_width=True):
             st.session_state["navigation_page_selector"] = "🔬 Disease Detection"
             st.rerun()
     with btn_col2:
-        if st.button("Explore 35 Crops", use_container_width=True):
+        if st.button("Explore Crops", use_container_width=True):
             st.session_state["navigation_page_selector"] = "🌱 Explore Crops"
             st.rerun()
     with btn_col3:
@@ -1133,27 +1389,27 @@ def render_home_page():
     with f1:
         st.markdown("""
         <div class="product-card">
-            <h3>🔬 Multi-Organ Vision Screening</h3>
+            <h3>🔬 AI Leaf Screening</h3>
             <div class="card-muted">
-                Fast, objective visual assessment from leaf, fruit, or tuber imagery with transparent neural network confidence distributions.
+                Fast, objective visual assessment from leaf imagery with verified neural network confidence distributions.
             </div>
         </div>
         """, unsafe_allow_html=True)
     with f2:
         st.markdown("""
         <div class="product-card">
-            <h3>📊 35-Crop Pathology Compendium</h3>
+            <h3>📊 Plant Health Analysis</h3>
             <div class="card-muted">
-                Exhaustive disease descriptions, life cycles, stage-by-stage symptoms, and verified chemical and biological regimens.
+                Clear descriptions of symptoms, etiology, pathogen biology, and preventative cultural schedules.
             </div>
         </div>
         """, unsafe_allow_html=True)
     with f3:
         st.markdown("""
         <div class="product-card">
-            <h3>🌱 Dynamic Weather & Care Guidance</h3>
+            <h3>🌱 Practical Care Guidance</h3>
             <div class="card-muted">
-                Live meteorological spray feasibility windows, disease pressure indexes, and localized plant-care discovery.
+                Responsible fertilizer schedules, spray windows, and verified local plant-care discovery.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1166,12 +1422,12 @@ def render_home_page():
 # ============================================================
 def render_detection_page():
     st.markdown("## 🔬 Disease Detection")
-    st.caption("Upload a clear photo of a plant leaf, fruit, or tuber to receive an AI-assisted health assessment and practical care guidance.")
+    st.caption("Upload a clear photo of a plant leaf to receive an AI-assisted health assessment and practical care guidance.")
 
-    model_classes = DEFAULT_MODEL_CLASSES
+    model_classes = get_model_classes()
 
     uploaded_file = st.file_uploader(
-        "Upload plant specimen image",
+        "Upload plant leaf image",
         type=["jpg", "jpeg", "png", "webp"],
         label_visibility="collapsed"
     )
@@ -1189,20 +1445,20 @@ def render_detection_page():
         col_preview, col_action = st.columns([1, 1.25], gap="large")
 
         with col_preview:
-            st.image(image, caption="Uploaded Specimen Preview", use_container_width=True)
+            st.image(image, caption="Uploaded Leaf Preview", use_container_width=True)
 
         with col_action:
             st.markdown("""
             <div class="product-card">
-                <h3>Ready for Neural Screening</h3>
+                <h3>Ready for Screening</h3>
                 <div class="card-muted">
-                    Click the button below to initiate multi-resolution neural network classification against verified pathological datasets.
+                    Click below to run model inference against verified pathological datasets.
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-            if st.button("🔬 Analyze Specimen", type="primary", use_container_width=True):
-                with st.spinner("Analyzing plant specimen..."):
+            if st.button("🔬 Analyze Leaf", type="primary", use_container_width=True):
+                with st.spinner("Analyzing your leaf..."):
                     try:
                         condition, confidence, top5, used_res = execute_adaptive_prediction(MODEL_OBJ, image, model_classes)
                         info = get_disease_detail(condition)
@@ -1236,7 +1492,7 @@ def render_detection_page():
 
         st.markdown(f"""
         <div class="result-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: gap; gap: 0.5rem;">
                 <div style="font-size: 0.82rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b;">
                     Screening Result
                 </div>
@@ -1245,14 +1501,14 @@ def render_detection_page():
                     {conf_tag}
                 </div>
             </div>
-            <div style="font-size: 1.95rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.5rem; font-family: 'Space Grotesk', sans-serif;">
+            <div style="font-size: 1.85rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.5rem;">
                 {p['condition']}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
         if p["confidence"] < 60.0:
-            st.info("💡 **Low-confidence result:** Try uploading a clearer specimen image with good natural lighting and minimal background clutter.")
+            st.info("💡 **Low-confidence result:** Try uploading a clearer leaf image with good lighting and minimal background.")
 
         m1, m2, m3, m4 = st.columns(4)
         with m1:
@@ -1364,11 +1620,11 @@ def render_report_page():
     p = st.session_state.prediction_data
     if not p:
         st.markdown("""
-        <div class="product-card" style="text-align: center; padding: 3.5rem 2rem;">
-            <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">📋</div>
+        <div class="product-card" style="text-align: center; padding: 3rem 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📋</div>
             <h3>No Active Screening Record</h3>
             <div class="card-muted">
-                Please analyze a plant leaf or fruit in the 'Disease Detection' section first to view and download your clinical health report.
+                Please analyze a plant leaf in the 'Disease Detection' section first to view and download your health report.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1381,14 +1637,13 @@ def render_report_page():
 
     col_rep_img, col_rep_meta = st.columns([1, 2], gap="large")
     with col_rep_img:
-        st.image(p["image"], caption="Screened Specimen", use_container_width=True)
+        st.image(p["image"], caption="Screened Leaf Specimen", use_container_width=True)
     with col_rep_meta:
         st.markdown(f"""
-        <div class="hero-banner" style="padding: 2rem 2.2rem; margin-bottom: 1rem;">
+        <div class="hero-banner" style="padding: 1.8rem 2rem; margin-bottom: 1rem;">
             <div class="hero-kicker">HEALTH SCREENING DOSSIER</div>
-            <div class="hero-title" style="font-size: 1.9rem;">{html.escape(p['condition'])}</div>
+            <div class="hero-title" style="font-size: 1.8rem;">{html.escape(p['condition'])}</div>
             <div>Confidence: <strong>{p['confidence']:.2f}%</strong> | Status: <strong>{info.get('status', 'Analyzed')}</strong></div>
-            <div style="margin-top: 0.6rem; font-size: 0.88rem; color: #d1fae5;">Developed by Madhav Kumar | Powered by SEA AUTO</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1430,7 +1685,7 @@ def render_report_page():
 # ============================================================
 def render_crop_directory():
     st.markdown("## 🌱 Explore Crops")
-    st.caption("Complete directory of 35 vegetable crops across standard botanical categories.")
+    st.caption("Complete directory of 35 vegetable crops. AI model screening is actively calibrated for Solanaceae staples.")
 
     plant_db = get_crops_database()
 
@@ -1448,63 +1703,41 @@ def render_crop_directory():
                         badge_style = "status-danger"
 
                     st.markdown(f"""
-                    <div style="background:#ffffff; border:1px solid #e2ece6; border-radius:16px; padding:1.2rem; margin-bottom:0.95rem; box-shadow:0 3px 8px rgba(0,0,0,0.02);">
+                    <div style="background:#ffffff; border:1px solid #e2ece6; border-radius:14px; padding:1.1rem; margin-bottom:0.85rem; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                            <strong style="color:#064e3b; font-size:1.05rem;">{crop['name']}</strong>
-                            <span class="status-badge {badge_style}" style="font-size:0.68rem; padding:0.25rem 0.6rem;">{crop['status']}</span>
+                            <strong style="color:#064e3b; font-size:1rem;">{crop['name']}</strong>
+                            <span class="status-badge {badge_style}" style="font-size:0.68rem; padding:0.2rem 0.5rem;">{crop['status']}</span>
                         </div>
-                        <div style="font-size:0.78rem; color:#64748b; font-style:italic; margin-bottom:0.45rem;">{crop.get('scientific_name', '')}</div>
-                        <p style="font-size:0.88rem; color:#52665a; margin:0; line-height:1.55;">{crop['description']}</p>
+                        <div style="font-size:0.75rem; color:#64748b; font-style:italic; margin-bottom:0.4rem;">{crop.get('scientific_name', '')}</div>
+                        <p style="font-size:0.85rem; color:#52665a; margin:0; line-height:1.5;">{crop['description']}</p>
                     </div>
                     """, unsafe_allow_html=True)
 
 # ============================================================
-# PAGE 5: DYNAMIC 35-CROP DISEASE KNOWLEDGE HUB
+# PAGE 5: ADVANCED & DEEP DISEASE KNOWLEDGE HUB
 # ============================================================
 def render_knowledge_hub():
     st.markdown("## 📚 Disease Knowledge Hub")
     st.caption("Advanced Clinical Pathology Dossiers & Integrated Disease Management (IDM) Compendium.")
 
-    diseases_db = get_diseases_database()
-    crops_catalog = get_crops_database()
-
-    # Dynamic extraction of all 35 crops
-    crop_names_set = set()
-    for cat, crop_list in crops_catalog.items():
-        for c in crop_list:
-            crop_names_set.add(c["name"])
-
-    for d_name, d_info in diseases_db.items():
-        if d_info.get("crop"):
-            crop_names_set.add(d_info.get("crop"))
-
-    all_crop_options = ["All Crops"] + sorted(list(crop_names_set))
+    model_classes = get_model_classes()
 
     col_crop_sel, col_disease_sel = st.columns([1, 1.5])
     with col_crop_sel:
         crop_filter = st.selectbox(
             "Filter by Crop",
-            all_crop_options,
+            ["All Crops", "Pepper (Bell)", "Potato", "Tomato"],
             key="crop_knowledge_filter"
         )
-
-    # Filter diseases dynamically
-    if crop_filter == "All Crops":
-        filtered_diseases = list(diseases_db.keys())
-    else:
-        filtered_diseases = [
-            d_name for d_name, d_info in diseases_db.items()
-            if d_info.get("crop") == crop_filter or crop_filter.lower() in d_info.get("crop", "").lower()
-        ]
-
-    if not filtered_diseases:
-        st.info(f"💡 **{crop_filter}:** Detailed disease pathology profiles are currently being compiled for this crop. Check back soon or view general crop details in 'Explore Crops'.")
-        return
+    
+    filtered_classes = model_classes
+    if crop_filter != "All Crops":
+        filtered_classes = [c for c in model_classes if get_disease_detail(c).get("crop") == crop_filter]
 
     with col_disease_sel:
         selected_condition = st.selectbox(
             "Select Pathological Condition to Inspect",
-            filtered_diseases,
+            filtered_classes,
             key="condition_knowledge_selector"
         )
 
@@ -1514,10 +1747,10 @@ def render_knowledge_hub():
     <div class="result-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-                <span style="font-size: 0.88rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b;">
+                <span style="font-size: 0.85rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b;">
                     Botanical Specimen: <em>{info.get('scientific_crop', info.get('crop', 'Crop'))}</em>
                 </span>
-                <div style="font-size: 0.88rem; color: #047857; font-weight: 750; margin-top: 0.25rem;">
+                <div style="font-size: 0.85rem; color: #047857; font-weight: 700; margin-top: 0.2rem;">
                     Pathogen Taxon: {info.get('pathogen', 'N/A')}
                 </div>
             </div>
@@ -1526,10 +1759,10 @@ def render_knowledge_hub():
                 <span class="status-badge status-warning" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1;">Severity: {info.get('severity', 'Moderate')}</span>
             </div>
         </div>
-        <div style="font-size: 2.1rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.65rem; font-family: 'Space Grotesk', sans-serif;">
+        <div style="font-size: 2rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.6rem;">
             {selected_condition}
         </div>
-        <div style="font-size: 1rem; color: #334155; line-height: 1.72;">
+        <div style="font-size: 0.98rem; color: #334155; line-height: 1.7;">
             {info.get('overview', '')}
         </div>
     </div>
@@ -1556,7 +1789,7 @@ def render_knowledge_hub():
                     {info.get('causes', 'N/A')}
                     <br><br>
                     <strong>Optimal Climate Conditions:</strong><br>
-                    <span style="color:#064e3b; font-weight:750;">{info.get('ideal_climate', 'Warm, humid weather with prolonged foliar moisture')}</span>
+                    <span style="color:#064e3b; font-weight:700;">{info.get('ideal_climate', 'Warm, humid weather with prolonged foliar moisture')}</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1575,7 +1808,7 @@ def render_knowledge_hub():
             <div class="product-card">
                 <h3>🧪 Chemical Formulations & Doses</h3>
                 <div class="card-muted" style="white-space: pre-line;">{info.get('chemical_treatment', info.get('treatment', 'N/A'))}</div>
-                <div style="font-size:0.82rem; color:#b91c1c; margin-top:0.85rem; font-weight:600;">
+                <div style="font-size:0.8rem; color:#b91c1c; margin-top:0.8rem;">
                     * Follow local agrochemical regulations and strictly respect Pre-Harvest Intervals (PHI).
                 </div>
             </div>
@@ -1652,15 +1885,15 @@ def render_farmer_stories():
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <div>
                         <h3 style="margin-bottom: 0.2rem;">{html.escape(st_item.get('farmer_name', 'Farmer'))}</h3>
-                        <div style="font-size: 0.88rem; color: #047857; font-weight: 750;">
+                        <div style="font-size: 0.85rem; color: #047857; font-weight: 700;">
                             📍 {html.escape(st_item.get('location', ''))}, {html.escape(st_item.get('state', ''))}
                         </div>
                     </div>
-                    <span class="status-badge status-healthy" style="font-size: 0.76rem;">
+                    <span class="status-badge status-healthy" style="font-size: 0.75rem;">
                         {html.escape(st_item.get('crop', 'Crop'))}
                     </span>
                 </div>
-                <div style="font-size: 0.94rem; color: #334155; line-height: 1.65; margin-bottom: 0.85rem;">
+                <div style="font-size: 0.92rem; color: #334155; line-height: 1.6; margin-bottom: 0.75rem;">
                     {html.escape(st_item.get('short_description', ''))}
                 </div>
             </div>
@@ -1760,7 +1993,7 @@ def render_weather_advisory():
         st.markdown(f"""
         <div class="product-card">
             <h3>Spray Suitability Status</h3>
-            <div style="font-size: 1.22rem; font-weight: 850; color: {'#064e3b' if 'Favorable' in spray_status else '#991b1b'}; margin-bottom: 0.5rem;">
+            <div style="font-size: 1.2rem; font-weight: 800; color: {'#064e3b' if 'Favorable' in spray_status else '#991b1b'}; margin-bottom: 0.5rem;">
                 {spray_status}
             </div>
             <div class="card-muted">
@@ -1843,7 +2076,7 @@ def render_nearby_page():
                     for s in shops:
                         st.markdown(f"""
                         <div class="product-card">
-                            <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem;">🏪 {html.escape(s['name'])}</h3>
+                            <h3 style="font-size: 1.1rem; margin-bottom: 0.3rem;">🏪 {html.escape(s['name'])}</h3>
                             <div class="card-muted">
                                 <strong>Category:</strong> {html.escape(s['type'])}<br>
                                 <strong>Address:</strong> {html.escape(s['address'])}
@@ -1859,8 +2092,8 @@ def render_nearby_page():
                     )
         else:
             st.markdown("""
-            <div class="product-card" style="text-align: center; padding: 2.8rem 1.5rem;">
-                <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">🗺️</div>
+            <div class="product-card" style="text-align: center; padding: 2.5rem 1.5rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🗺️</div>
                 <h3>Locator Ready</h3>
                 <div class="card-muted">
                     Enable location access on the left to locate certified suppliers.
@@ -1869,7 +2102,7 @@ def render_nearby_page():
             """, unsafe_allow_html=True)
 
 # ============================================================
-# PAGE 9: CONTENT MANAGER (Admin UI)
+# PAGE 9: CONTENT MANAGER
 # ============================================================
 def render_content_manager():
     st.markdown("## ⚙️ Content Manager")
@@ -2009,46 +2242,43 @@ def render_about_page():
         <div class="hero-kicker" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">
             ✦ ABOUT PLANTCARE AI
         </div>
-        <h1 style="color: #064e3b; font-size: 2.3rem; margin: 0.5rem 0 0.85rem; font-family: 'Space Grotesk', sans-serif;">About PlantCare AI</h1>
-        <p class="card-muted" style="font-size: 1.08rem;">
-            PlantCare AI is an AI-powered plant health screening and crop protection engine developed by <strong>Madhav Kumar</strong> under <strong>SEA AUTO</strong> to help growers, gardeners, 
-            and agricultural specialists understand visible plant-health problems from leaf and fruit images and receive actionable agronomic guidance.
+        <h1 style="color: #064e3b; font-size: 2.2rem; margin: 0.5rem 0 0.75rem;">About PlantCare AI</h1>
+        <p class="card-muted" style="font-size: 1.05rem;">
+            PlantCare AI is an AI-powered plant health screening application developed under SEA AUTO to help users 
+            understand visible plant-health conditions from leaf images and receive practical plant-care guidance.
         </p>
         <p class="card-muted">
-            The platform provides AI-assisted visual screening, comprehensive clinical disease profiles across 35 agricultural crops, preventative cultural schedules, 
-            and real-time meteorological spray advisories.
+            The platform provides AI-assisted visual screening, comprehensive disease profiles, preventative agronomic schedules, 
+            and live weather-informed spray advisories.
         </p>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.35rem; margin-top: 1.2rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
         <div class="product-card">
-            <h3>Product Mission</h3>
+            <h3>Product Purpose</h3>
             <div class="card-muted">
-                To make early visual plant disease assessment accessible, instant, and straightforward for farmers, growers, and agronomists worldwide.
+                To make early visual plant disease assessment accessible and straightforward for growers, gardeners, and agronomists.
             </div>
         </div>
         <div class="product-card">
-            <h3>AI-Assisted Vision</h3>
+            <h3>AI-Assisted Screening</h3>
             <div class="card-muted">
-                High-precision deep learning image screening delivering transparent probability metrics and immediate management steps.
+                High-precision deep learning image screening delivering transparent probability metrics and immediate guidance.
             </div>
         </div>
         <div class="product-card">
             <h3>SEA AUTO Ecosystem</h3>
             <div class="card-muted">
-                PlantCare AI is part of SEA AUTO's technology ecosystem focused on building scalable, practical real-world agricultural solutions.
+                PlantCare AI is part of SEA AUTO's technology ecosystem focused on building scalable, practical real-world solutions.
             </div>
         </div>
     </div>
 
-    <div class="product-card" style="margin-top: 1.4rem; text-align: center;">
-        <div style="font-size: 1.35rem; font-weight: 850; color: #064e3b; margin-bottom: 0.35rem;">
-            Developed by Madhav Kumar
+    <div class="product-card" style="margin-top: 1.25rem; text-align: center;">
+        <div style="font-size: 1.2rem; font-weight: 800; color: #064e3b; margin-bottom: 0.3rem;">
+            Powered by SEA AUTO
         </div>
-        <div style="font-size: 1rem; font-weight: 750; color: #059669; margin-bottom: 0.25rem;">
-            ✦ Powered by SEA AUTO
-        </div>
-        <div style="font-size: 0.88rem; color: #64748b;">
+        <div style="font-size: 0.85rem; color: #64748b;">
             Committed to accessible, intelligent agricultural technology solutions.
         </div>
     </div>
@@ -2089,7 +2319,7 @@ def main():
             <span class="footer-brand">PlantCare AI</span>
             <span>· Powered by SEA AUTO</span>
         </div>
-        <div>Developed by <strong>Madhav Kumar</strong> &nbsp;|&nbsp; © 2026 PlantCare AI. All rights reserved.</div>
+        <div>© 2026 PlantCare AI. All rights reserved.</div>
     </div>
     """, unsafe_allow_html=True)
 
