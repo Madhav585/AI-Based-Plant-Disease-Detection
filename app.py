@@ -16,18 +16,19 @@ import streamlit as st
 import requests
 
 # ============================================================
-# 1. APPLICATION & LOGGING CONFIGURATION
+# LOGGING & CORE CONFIGURATION
 # ============================================================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("PlantCareAI")
 
 st.set_page_config(
-    page_title="PlantCare AI — Autonomous Plant Health & Agronomy Hub",
+    page_title="PlantCare AI — AI-Based Plant Disease Detection & Health Hub",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
+# Active Root & Storage Directories
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 IMAGES_DIR = BASE_DIR / "images"
@@ -39,118 +40,7 @@ for directory in [DATA_DIR, IMAGES_DIR, FARMER_IMAGES_DIR, AD_IMAGES_DIR, CROP_I
     directory.mkdir(parents=True, exist_ok=True)
 
 # ============================================================
-# 2. LOCALIZATION (ENGLISH ⇄ हिन्दी)
-# ============================================================
-TRANSLATIONS = {
-    "en": {
-        "app_title": "PlantCare AI",
-        "tagline": "Enterprise Agronomic Health & Visual Diagnostic Engine",
-        "powered_by": "Powered by SEA AUTO",
-        "nav_home": "🏠 Home",
-        "nav_scan": "🔬 Scan Plant",
-        "nav_report": "📄 Health Dossier",
-        "nav_crops": "🌱 Explore 35 Crops",
-        "nav_knowledge": "📚 Disease Knowledge Hub",
-        "nav_stories": "🌾 Field Case Studies",
-        "nav_weather": "🌦️ Weather & Spray Advisory",
-        "nav_nearby": "📍 Nearby Agri Centers",
-        "nav_admin": "⚙️ Content Manager",
-        "nav_about": "ℹ️ About Platform",
-        "hero_kicker": "✦ AUTONOMOUS AGRITECH DIAGNOSTICS",
-        "hero_heading": "Healthy Crops. Maximum Yields.",
-        "hero_desc": "Industrial AI-grade computer vision diagnostics for 35 commercial vegetable crops. Upload leaf, fruit, or tuber images for immediate clinical identification and targeted management.",
-        "btn_scan": "Scan Plant Specimen",
-        "btn_explore": "Explore 35 Crops",
-        "btn_knowledge": "Disease Pathology Hub",
-        "model_online": "🟢 Neural Engine Online",
-        "model_offline": "🟡 Engine Fallback Active",
-        "scan_heading": "🔬 Plant Visual Health Inspection",
-        "scan_desc": "Provide a clean, focused image of the affected plant foliage, fruit, or tuber to trigger multi-resolution neural classification.",
-        "upload_label": "Upload plant image or camera capture",
-        "analyze_btn": "🔬 Run Neural Diagnosis",
-        "analysis_success": "Diagnostic screening complete.",
-        "confidence_high": "🟢 Confirmed Diagnostic (>70%)",
-        "confidence_low": "🟡 Indicative Diagnosis (<70%)",
-        "result_heading": "Diagnostic Screening Dossier",
-        "plant_label": "Crop Type",
-        "category_label": "Etiological Class",
-        "risk_label": "Damage Potential",
-        "conf_label": "Neural Confidence",
-        "overview_title": "📖 Clinical Description",
-        "symptoms_title": "🤒 Symptomatology",
-        "causes_title": "⚠️ Pre-disposing Stressors",
-        "treatment_title": "💊 Chemical Formulations",
-        "fert_title": "🌱 Nutrition Modulation",
-        "pest_title": "🐛 Vector Management",
-        "tips_title": "👨‍🌾 Practical Field Rules",
-        "top5_heading": "📊 Top 5 Neural Probability Distribution",
-        "disclaimer": "AI-assisted screening provides rapid diagnostic guidance. Always confirm with standard agronomic advisory before broad-acre chemical applications.",
-        "report_heading": "📄 Agronomic Health Dossier",
-        "report_desc": "Official inspection summary ready for review and local export.",
-        "no_report": "No Diagnostic Record Found",
-        "no_report_desc": "Please submit a plant image in the 'Scan Plant' section to generate a comprehensive report.",
-        "download_btn": "📥 Export Diagnostic Dossier (.txt)"
-    },
-    "hi": {
-        "app_title": "PlantCare AI",
-        "tagline": "उन्नत पादप स्वास्थ्य एवं दृश्य निदान प्रणाली",
-        "powered_by": "SEA AUTO द्वारा संचालित",
-        "nav_home": "🏠 मुख्य पृष्ठ",
-        "nav_scan": "🔬 पौधे की जांच करें",
-        "nav_report": "📄 स्वास्थ्य रिपोर्ट",
-        "nav_crops": "🌱 35 फसलें देखें",
-        "nav_knowledge": "📚 रोग ज्ञान केंद्र",
-        "nav_stories": "🌾 किसान अनुभव",
-        "nav_weather": "🌦️ मौसम एवं छिड़काव सलाह",
-        "nav_nearby": "📍 नजदीकी कृषि केंद्र",
-        "nav_admin": "⚙️ सामग्री प्रबंधन",
-        "nav_about": "ℹ️ प्लेटफॉर्म विवरण",
-        "hero_kicker": "✦ स्वायत्त कृषि प्रौद्योगिकी",
-        "hero_heading": "स्वस्थ फसल। समृद्ध किसान।",
-        "hero_desc": "35 प्रमुख सब्जियों के लिए उन्नत कंप्यूटर विजन आधारित एआई निदान प्रणाली। त्वरित रोग पहचान एवं सटीक रासायनिक व जैविक उपचार प्राप्त करने हेतु पत्ती या फल की तस्वीर अपलोड करें।",
-        "btn_scan": "पौधा स्कैन करें",
-        "btn_explore": "35 फसलें देखें",
-        "btn_knowledge": "रोग ज्ञान भंडार",
-        "model_online": "🟢 एआई मॉडल सक्रिय है",
-        "model_offline": "🟡 बैकअप मोड सक्रिय है",
-        "scan_heading": "🔬 पादप रोग दृश्य परीक्षण",
-        "scan_desc": "सटीक न्यूरल नेटवर्क विश्लेषण के लिए प्रभावित पत्ती, फल या कंद की स्पष्ट तस्वीर अपलोड करें।",
-        "upload_label": "पौधे की तस्वीर अपलोड करें",
-        "analyze_btn": "🔬 जांच शुरू करें",
-        "analysis_success": "सफलतापूर्वक जांच पूरी हुई।",
-        "confidence_high": "🟢 उच्च सटीकता (>70%)",
-        "confidence_low": "🟡 सामान्य सटीकता (<70%)",
-        "result_heading": "निदान एवं उपचार विवरण",
-        "plant_label": "फसल",
-        "category_label": "रोग श्रेणी",
-        "risk_label": "गंभीरता",
-        "conf_label": "कॉन्फिडेंस",
-        "overview_title": "📖 रोग का विवरण",
-        "symptoms_title": "🤒 लक्षण",
-        "causes_title": "⚠️ कारक एवं कारण",
-        "treatment_title": "💊 रासायनिक उपचार व डोज",
-        "fert_title": "🌱 पोषण एवं खाद प्रबंधन",
-        "pest_title": "🐛 कीट व रोग वाहक नियंत्रण",
-        "tips_title": "👨‍🌾 जरूरी किसान टिप्स",
-        "top5_heading": "📊 शीर्ष 5 एआई संभावनाएं",
-        "disclaimer": "एआई निदान एक त्वरित तकनीकी सहायता है। बड़े पैमाने पर छिड़काव से पूर्व स्थानीय कृषि विशेषज्ञ से सलाह अवश्य लें।",
-        "report_heading": "📄 विस्तृत स्वास्थ्य रिपोर्ट",
-        "report_desc": "डाउनलोड व रिकॉर्ड हेतु तैयार आधिकारिक स्वास्थ्य रिपोर्ट।",
-        "no_report": "कोई परीक्षण रिकॉर्ड नहीं मिला",
-        "no_report_desc": "रिपोर्ट तैयार करने के लिए पहले 'पौधे की जांच करें' सेक्शन में तस्वीर अपलोड करें।",
-        "download_btn": "📥 रिपोर्ट डाउनलोड करें (.txt)"
-    }
-}
-
-if "lang" not in st.session_state:
-    st.session_state.lang = "en"
-
-def t(key: str) -> str:
-    lang = st.session_state.get("lang", "en")
-    return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, TRANSLATIONS["en"].get(key, key))
-
-# ============================================================
-# 3. AI MODEL REGISTRY & 35-CROP CATALOG
+# 1. MODEL CLASSES REGISTRY (AI INFERENCE SOURCE OF TRUTH)
 # ============================================================
 DEFAULT_MODEL_CLASSES = [
     "Pepper Bell Bacterial Spot",
@@ -170,278 +60,162 @@ DEFAULT_MODEL_CLASSES = [
     "Tomato Mosaic Virus",
 ]
 
+# Standard 35 Vegetable Crops Directory
 DEFAULT_35_CROPS = {
     "Solanaceae": [
-        {"name": "Tomato", "scientific": "Solanum lycopersicum", "status": "AI Live (10 Diseases)"},
-        {"name": "Potato", "scientific": "Solanum tuberosum", "status": "AI Live (Early/Late Blight)"},
-        {"name": "Capsicum / Bell Pepper", "scientific": "Capsicum annuum", "status": "AI Live (Bacterial Spot)"},
-        {"name": "Brinjal / Eggplant", "scientific": "Solanum melongena", "status": "Knowledge Active"},
-        {"name": "Chilli", "scientific": "Capsicum frutescens", "status": "Knowledge Active"}
+        {"id": "sol_tomato", "name": "Tomato", "scientific_name": "Solanum lycopersicum", "status": "AI Detection Available", "ai_supported": True, "description": "High-value commercial crop. Full AI diagnosis active for 10 pathological conditions."},
+        {"id": "sol_potato", "name": "Potato", "scientific_name": "Solanum tuberosum", "status": "AI Detection Available", "ai_supported": True, "description": "Staple tuber crop. Full AI diagnosis active for Early Blight, Late Blight, and Healthy Foliage."},
+        {"id": "sol_capsicum", "name": "Capsicum / Bell Pepper", "scientific_name": "Capsicum annuum", "status": "AI Detection Available", "ai_supported": True, "description": "Sweet pepper crop. Full AI diagnosis active for Bacterial Spot and Healthy Foliage."},
+        {"id": "sol_brinjal", "name": "Brinjal / Eggplant", "scientific_name": "Solanum melongena", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "sol_chilli", "name": "Chilli", "scientific_name": "Capsicum frutescens", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
     "Cucurbit Vegetables": [
-        {"name": "Pumpkin", "scientific": "Cucurbita moschata", "status": "Knowledge Active"},
-        {"name": "Cucumber", "scientific": "Cucumis sativus", "status": "Knowledge Active"},
-        {"name": "Bottle Gourd / Lauki", "scientific": "Lagenaria siceraria", "status": "Knowledge Active"},
-        {"name": "Bitter Gourd / Karela", "scientific": "Momordica charantia", "status": "Knowledge Active"},
-        {"name": "Ridge Gourd / Turai", "scientific": "Luffa acutangula", "status": "Knowledge Active"},
-        {"name": "Sponge Gourd / Gilki", "scientific": "Luffa aegyptiaca", "status": "Knowledge Active"},
-        {"name": "Pointed Gourd / Parwal", "scientific": "Trichosanthes dioica", "status": "Knowledge Active"},
-        {"name": "Ash Gourd / Petha", "scientific": "Benincasa hispida", "status": "Knowledge Active"},
-        {"name": "Zucchini", "scientific": "Cucurbita pepo", "status": "Knowledge Active"},
-        {"name": "Snake Gourd / Chichinda", "scientific": "Trichosanthes cucumerina", "status": "Knowledge Active"},
-        {"name": "Ivy Gourd / Kundru", "scientific": "Coccinia grandis", "status": "Knowledge Active"}
+        {"id": "cuc_pumpkin", "name": "Pumpkin", "scientific_name": "Cucurbita moschata", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_cucumber", "name": "Cucumber", "scientific_name": "Cucumis sativus", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_bottle_gourd", "name": "Bottle Gourd / Lauki", "scientific_name": "Lagenaria siceraria", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_bitter_gourd", "name": "Bitter Gourd / Karela", "scientific_name": "Momordica charantia", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_ridge_gourd", "name": "Ridge Gourd / Turai", "scientific_name": "Luffa acutangula", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_sponge_gourd", "name": "Sponge Gourd / Gilki", "scientific_name": "Luffa aegyptiaca", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_pointed_gourd", "name": "Pointed Gourd / Parwal", "scientific_name": "Trichosanthes dioica", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_ash_gourd", "name": "Ash Gourd / Petha", "scientific_name": "Benincasa hispida", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_zucchini", "name": "Zucchini", "scientific_name": "Cucurbita pepo", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_snake_gourd", "name": "Snake Gourd / Chichinda", "scientific_name": "Trichosanthes cucumerina", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "cuc_ivy_gourd", "name": "Ivy Gourd / Kundru", "scientific_name": "Coccinia grandis", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
     "Common Indian Vegetables": [
-        {"name": "Okra / Lady Finger / Bhindi", "scientific": "Abelmoschus esculentus", "status": "Knowledge Active"},
-        {"name": "French Bean", "scientific": "Phaseolus vulgaris", "status": "Knowledge Active"},
-        {"name": "Green Bean", "scientific": "Phaseolus vulgaris var.", "status": "Knowledge Active"},
-        {"name": "Peas / Matar", "scientific": "Pisum sativum", "status": "Knowledge Active"},
-        {"name": "Sweet Corn", "scientific": "Zea mays var. saccharata", "status": "Knowledge Active"},
-        {"name": "Carrot", "scientific": "Daucus carota", "status": "Knowledge Active"},
-        {"name": "Radish / Mooli", "scientific": "Raphanus sativus", "status": "Knowledge Active"},
-        {"name": "Beetroot", "scientific": "Beta vulgaris", "status": "Knowledge Active"},
-        {"name": "Turnip / Shalgam", "scientific": "Brassica rapa subsp. rapa", "status": "Knowledge Active"}
+        {"id": "com_okra", "name": "Okra / Lady Finger / Bhindi", "scientific_name": "Abelmoschus esculentus", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_french_bean", "name": "French Bean", "scientific_name": "Phaseolus vulgaris", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_green_bean", "name": "Green Bean", "scientific_name": "Phaseolus vulgaris var.", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_peas", "name": "Peas / Matar", "scientific_name": "Pisum sativum", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_sweet_corn", "name": "Sweet Corn", "scientific_name": "Zea mays var. saccharata", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_carrot", "name": "Carrot", "scientific_name": "Daucus carota", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_radish", "name": "Radish / Mooli", "scientific_name": "Raphanus sativus", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_beetroot", "name": "Beetroot", "scientific_name": "Beta vulgaris", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "com_turnip", "name": "Turnip / Shalgam", "scientific_name": "Brassica rapa subsp. rapa", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
     "Cole Vegetables": [
-        {"name": "Cabbage", "scientific": "Brassica oleracea var. capitata", "status": "Knowledge Active"},
-        {"name": "Cauliflower", "scientific": "Brassica oleracea var. botrytis", "status": "Knowledge Active"},
-        {"name": "Broccoli", "scientific": "Brassica oleracea var. italica", "status": "Knowledge Active"}
+        {"id": "col_cabbage", "name": "Cabbage", "scientific_name": "Brassica oleracea var. capitata", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "col_cauliflower", "name": "Cauliflower", "scientific_name": "Brassica oleracea var. botrytis", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "col_broccoli", "name": "Broccoli", "scientific_name": "Brassica oleracea var. italica", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
     "Leafy Vegetables": [
-        {"name": "Spinach / Palak", "scientific": "Spinacia oleracea", "status": "Knowledge Active"},
-        {"name": "Fenugreek / Methi", "scientific": "Trigonella foenum-graecum", "status": "Knowledge Active"},
-        {"name": "Coriander / Dhaniya", "scientific": "Coriandrum sativum", "status": "Knowledge Active"},
-        {"name": "Lettuce", "scientific": "Lactuca sativa", "status": "Knowledge Active"},
-        {"name": "Amaranth / Chaulai", "scientific": "Amaranthus cruentus", "status": "Knowledge Active"}
+        {"id": "lea_spinach", "name": "Spinach / Palak", "scientific_name": "Spinacia oleracea", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "lea_fenugreek", "name": "Fenugreek / Methi", "scientific_name": "Trigonella foenum-graecum", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "lea_coriander", "name": "Coriander / Dhaniya", "scientific_name": "Coriandrum sativum", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "lea_lettuce", "name": "Lettuce", "scientific_name": "Lactuca sativa", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "lea_amaranth", "name": "Amaranth / Chaulai", "scientific_name": "Amaranthus cruentus", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ],
     "Bulb Vegetables": [
-        {"name": "Onion", "scientific": "Allium cepa", "status": "Knowledge Active"},
-        {"name": "Garlic", "scientific": "Allium sativum", "status": "Knowledge Active"}
+        {"id": "bul_onion", "name": "Onion", "scientific_name": "Allium cepa", "status": "Knowledge Available / Training Planned", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."},
+        {"id": "bul_garlic", "name": "Garlic", "scientific_name": "Allium sativum", "status": "Coming Soon", "ai_supported": False, "description": "Crop information available — AI leaf disease detection is being calibrated."}
     ]
 }
 
 # ============================================================
-# 4. EXHAUSTIVE 35-CROP PATHOLOGY DATABASE
+# 2. DATA ACCESS & PERSISTENCE LAYER
 # ============================================================
-EXHAUSTIVE_35_CROP_PATHOLOGY = {
-    "Tomato Early Blight": {
-        "crop": "Tomato", "scientific": "Solanum lycopersicum", "pathogen": "Alternaria solani (Fungus)",
-        "category": "Fungal Blight", "severity": "High", "badge": "status-danger",
-        "overview": "Causes concentric target-like brown lesions on older leaves, progressing upward and triggering early defoliation.",
-        "etiology": "Fungal spores survive in crop debris and soil; splashed by rain drops under warm, humid conditions.",
-        "symptoms": "Dark brown circular spots with characteristic concentric rings on lower leaves, yellow halo around lesions.",
-        "causes": "Extended leaf wetness, high humidity (>80%), temperatures between 24-29°C, and overhead irrigation.",
-        "chemical_treatment": "Mancozeb 75% WP @ 2.5 g/L or Chlorothalonil 75% WP @ 2 g/L or Azoxystrobin 23% SC @ 1 ml/L.",
-        "organic_treatment": "Spray Trichoderma viride @ 5 g/L or 5% Neem Seed Kernel Extract (NSKE) at early onset.",
-        "prevention": "3-year crop rotation with non-solanaceous crops, staking, mulch installation, drip irrigation.",
-        "fertilizer": "Avoid excessive vegetative nitrogen; ensure adequate potassium and calcium nitrate.",
-        "pest_control": "Manage flea beetles and aphids which create entry wounds.",
-        "farmer_tips": "Prune bottom 12 inches of foliage after fruit set to eliminate splash-zone spores."
-    },
-    "Tomato Late Blight": {
-        "crop": "Tomato", "scientific": "Solanum lycopersicum", "pathogen": "Phytophthora infestans (Oomycete)",
-        "category": "Oomycete Blight", "severity": "Critical", "badge": "status-danger",
-        "overview": "Devastating water-soaked lesions causing whole vine collapse and destructive fruit rot in cool, damp weather.",
-        "etiology": "Wind-borne sporangia that rapidly germinate under high moisture and cool temperatures.",
-        "symptoms": "Irregular dark water-soaked patches on leaves with white fuzzy fungal growth on undersides in humid mornings.",
-        "causes": "High humidity (>90%), cool nights (10-15°C), and mild days (16-21°C).",
-        "chemical_treatment": "Metalaxyl 8% + Mancozeb 64% WP @ 2.5 g/L or Cymoxanil 8% + Mancozeb 64% WP @ 2 g/L.",
-        "organic_treatment": "Bordeaux mixture (1%) or Copper oxychloride @ 3 g/L as protective barrier.",
-        "prevention": "Destroy cull piles, use certified disease-free transplants, maximize airflow through wide spacing.",
-        "fertilizer": "Maintain balanced NPK; avoid lush vegetative growth.",
-        "pest_control": "Monitor insect vectors and destroy volunteer solanaceous weeds.",
-        "farmer_tips": "Apply protective fungicide immediately when persistent fog or overcast rain is forecast."
-    },
-    "Tomato Bacterial Spot": {
-        "crop": "Tomato", "scientific": "Solanum lycopersicum", "pathogen": "Xanthomonas perforans (Bacteria)",
-        "category": "Bacterial Infection", "severity": "High", "badge": "status-danger",
-        "overview": "Small, dark greasy spots on leaves and scabby raised spots on green fruits.",
-        "etiology": "Seed-borne and debris-borne bacteria entering via stomata and microscopic leaf abrasions.",
-        "symptoms": "Water-soaked leaf spots turning black, coalescing into ragged tears; raised scab lesions on fruit.",
-        "causes": "Splashing rain, high temperatures (24-30°C), and high humidity.",
-        "chemical_treatment": "Copper hydroxide @ 2 g/L mixed with Streptocycline @ 0.1 g/L (100 ppm).",
-        "organic_treatment": "Bacillus subtilis foliar sprays @ 5 ml/L and hot water seed treatment (50°C for 25 min).",
-        "prevention": "Certified pathogen-free seed stock, eliminate solanaceous volunteer plants, avoid working in wet fields.",
-        "fertilizer": "Adequate potassium to strengthen cell wall resistance.",
-        "pest_control": "Manage thrips and chewing insects that create bacterial entry points.",
-        "farmer_tips": "Disinfect pruning knives with 10% bleach solution between rows."
-    },
-    "Potato Early Blight": {
-        "crop": "Potato", "scientific": "Solanum tuberosum", "pathogen": "Alternaria solani (Fungus)",
-        "category": "Fungal Blight", "severity": "Moderate", "badge": "status-warning",
-        "overview": "Concentric brown-black lesions on lower canopy, reducing tuber yield.",
-        "etiology": "Overwinters in dead foliage and tuber skin; spread by rain splash and dry wind.",
-        "symptoms": "Concentric rings resembling a target board on lower leaves, yellowing margins.",
-        "causes": "Alternating wet and dry weather, tuber bulking stress, nutrient deficiencies.",
-        "chemical_treatment": "Propineb 70% WP @ 2 g/L or Difenoconazole 25% EC @ 0.5 ml/L.",
-        "organic_treatment": "Foliar spray of Trichoderma harzianum @ 5 g/L with cow urine solution (10%).",
-        "prevention": "Deep plowing of crop residues, certified seed tubers, balanced fertilization.",
-        "fertilizer": "Apply adequate potassium and nitrogen split doses during tuber initiation.",
-        "pest_control": "Control potato tuber moths and leafhoppers.",
-        "farmer_tips": "Stop irrigation 10-14 days before harvest to allow tuber skin maturity."
-    },
-    "Potato Late Blight": {
-        "crop": "Potato", "scientific": "Solanum tuberosum", "pathogen": "Phytophthora infestans (Oomycete)",
-        "category": "Oomycete Blight", "severity": "Critical", "badge": "status-danger",
-        "overview": "Destructive water-soaked leaf blighting leading to rapid plant decay and brown dry tuber rot.",
-        "etiology": "Infected seed tubers serve as primary inoculum; sporangia travel miles in air currents.",
-        "symptoms": "Water-soaked dark lesions on leaf tips, white downy mold underneath, purplish brown decay on tubers.",
-        "causes": "Relative humidity >85%, temperatures between 12-22°C with morning fog or rain.",
-        "chemical_treatment": "Dimethomorph 50% WP @ 1 g/L or Mandipropamid 23.4% SC @ 0.8 ml/L.",
-        "organic_treatment": "Copper Hydroxide 53.8% DF @ 2 g/L before infection occurs.",
-        "prevention": "Plant certified disease-free seed tubers; hill soil properly to protect tubers from spores.",
-        "fertilizer": "Avoid excess nitrogen late in season.",
-        "pest_control": "Destroy weed hosts like Solanum nigrum nearby.",
-        "farmer_tips": "Dehaulm (cut foliage) 10-12 days before harvest if late blight appears near maturity."
-    },
-    "Pepper Bell Bacterial Spot": {
-        "crop": "Capsicum / Bell Pepper", "scientific": "Capsicum annuum", "pathogen": "Xanthomonas vesicatoria (Bacteria)",
-        "category": "Bacterial Infection", "severity": "High", "badge": "status-danger",
-        "overview": "Causes severe leaf dropping, sunscalding of exposed fruits, and warty fruit lesions.",
-        "etiology": "Enters via natural leaf pores during rainy, windy weather; survives on seed coats.",
-        "symptoms": "Small, circular chlorotic spots on leaves becoming necrotic with dark halos; warty blisters on fruit.",
-        "causes": "Warm temperatures (24-30°C) with persistent foliar dampness.",
-        "chemical_treatment": "Copper Oxychloride @ 2.5 g/L + Streptocycline @ 0.1 g/L.",
-        "organic_treatment": "Seed treatment with hot water (50°C for 25 mins) and Pseudomonas fluorescens spray @ 5 g/L.",
-        "prevention": "Crop rotation for at least 2 seasons, drip irrigation, sanitized trellis stakes.",
-        "fertilizer": "Maintain high calcium and silicon levels to reinforce cuticle barriers.",
-        "pest_control": "Control broad mites and thrips.",
-        "farmer_tips": "Never work in capsicum rows while leaves are damp with morning dew."
-    },
-    "Brinjal Bacterial Wilt": {
-        "crop": "Brinjal / Eggplant", "scientific": "Solanum melongena", "pathogen": "Ralstonia solanacearum (Bacteria)",
-        "category": "Vascular Wilt", "severity": "Critical", "badge": "status-danger",
-        "overview": "Rapid, permanent daytime wilting of healthy green plants without initial leaf yellowing.",
-        "etiology": "Soil-borne vascular bacterium invades roots through transplanting damage or nematode wounds.",
-        "symptoms": "Sudden wilting of top leaves during hot sunny hours; white milky bacterial slime streaming from cut stem in water.",
-        "causes": "High soil moisture, poorly drained soils, temperatures above 28°C.",
-        "chemical_treatment": "Soil drenching with Copper Oxychloride @ 3 g/L + Streptocycline @ 0.2 g/L at early signs.",
-        "organic_treatment": "Soil incorporation of Pseudomonas fluorescens @ 2.5 kg/ha with enriched FYM.",
-        "prevention": "Grafting on resistant rootstocks (Solanum torvum), raised nursery beds, crop rotation with maize/paddy.",
-        "fertilizer": "Apply neem cake @ 250 kg/ha to suppress soil pathogens and nematodes.",
-        "pest_control": "Control root-knot nematodes strictly.",
-        "farmer_tips": "Do stem-streaming test in a clear glass of water to confirm bacterial wilt vs fungal wilt."
-    },
-    "Chilli Leaf Curl Virus": {
-        "crop": "Chilli", "scientific": "Capsicum frutescens", "pathogen": "Chilli Leaf Curl Virus (Begomovirus)",
-        "category": "Viral Disease", "severity": "High", "badge": "status-danger",
-        "overview": "Severe curling, puckering of leaves, stunting of plants, and massive reduction in fruit set.",
-        "etiology": "Transmitted systematically by whiteflies (Bemisia tabaci); not seed-transmitted.",
-        "symptoms": "Upward curling and crinkling of leaves, thickened veins, shortened internodes creating bushy stunted plants.",
-        "causes": "High whitefly populations during dry, warm weather.",
-        "chemical_treatment": "Diafenthiuron 50% WP @ 1.2 g/L or Spiromesifen 22.9% SC @ 1 ml/L.",
-        "organic_treatment": "Spray 5% Neem oil (10,000 ppm) @ 2 ml/L + yellow sticky traps (15-20 traps/acre).",
-        "prevention": "Grow barrier crops like maize/sorghum (2-3 rows) around field boundary.",
-        "fertilizer": "Supplement with micronutrient mixtures (Zinc, Boron, Magnesium).",
-        "pest_control": "Strictly suppress whiteflies from nursery stage onward.",
-        "farmer_tips": "Install yellow sticky traps early to catch whitefly swarms before virus transmission."
-    },
-    "Cucumber Downy Mildew": {
-        "crop": "Cucumber", "scientific": "Cucumis sativus", "pathogen": "Pseudoperonospora cubensis (Oomycete)",
-        "category": "Oomycete Mildew", "severity": "High", "badge": "status-danger",
-        "overview": "Angular yellow spots restricted by leaf veins on upper leaf surfaces, with purplish downy spore growth underneath.",
-        "etiology": "Wind-borne sporangia requiring only 2 hours of dew to infect cucurbit foliage.",
-        "symptoms": "Bright yellow angular spots delineated by major leaf veins, quickly turning brown and necrotic.",
-        "causes": "High humidity (>85%) with moderate temperatures (15-22°C) and morning fog.",
-        "chemical_treatment": "Dimethomorph 50% WP @ 1 g/L or Cymoxanil 8% + Mancozeb 64% @ 2 g/L.",
-        "organic_treatment": "Potassium bicarbonate spray (3 g/L) or Copper oxychloride @ 2.5 g/L preventive.",
-        "prevention": "Trellising cucumber vines to lift them off damp soil; wide spacing for wind ventilation.",
-        "fertilizer": "Avoid excess vegetative nitrogen; balance with potassium silicate.",
-        "pest_control": "Manage striped and spotted cucumber beetles.",
-        "farmer_tips": "Never use overhead sprinkler irrigation; switch entirely to ground drip."
-    },
-    "Pumpkin Powdery Mildew": {
-        "crop": "Pumpkin", "scientific": "Cucurbita moschata", "pathogen": "Podosphaera xanthii (Fungus)",
-        "category": "Fungal Mildew", "severity": "Moderate", "badge": "status-warning",
-        "overview": "White talcum powder-like fungal colonies covering upper and lower surfaces of pumpkin leaves and petioles.",
-        "etiology": "Airborne conidia that can germinate even in low relative humidity without requiring liquid water.",
-        "symptoms": "White flour-like powdery patches spreading over leaf canopy, causing premature leaf yellowing.",
-        "causes": "Dry atmospheric conditions combined with dense canopy shade and moderate temperatures (20-28°C).",
-        "chemical_treatment": "Hexaconazole 5% SC @ 1 ml/L or Difenoconazole 25% EC @ 0.5 ml/L.",
-        "organic_treatment": "Spray wettable sulfur 80% WP @ 2.5 g/L or baking soda @ 4 g/L with mild soap.",
-        "prevention": "Select resistant pumpkin varieties, thin dense foliage to allow sun penetration.",
-        "fertilizer": "Maintain balanced NPK; excessive nitrogen makes tissue highly susceptible.",
-        "pest_control": "Prevent leaf miners and pumpkin beetles.",
-        "farmer_tips": "Do not spray sulfur during high midday temperatures (>32°C) to prevent leaf scorching."
-    },
-    "Bottle Gourd Anthracnose": {
-        "crop": "Bottle Gourd / Lauki", "scientific": "Lagenaria siceraria", "pathogen": "Colletotrichum orbiculare (Fungus)",
-        "category": "Fungal Anthracnose", "severity": "High", "badge": "status-danger",
-        "overview": "Water-soaked lesions on leaves expanding into circular dark spots with salmon-pink spore masses in damp weather.",
-        "etiology": "Survives on infected crop residues and seed coats; splashed by rain droplets onto leaves and developing fruit.",
-        "symptoms": "Shot-hole appearance on leaves; sunken circular lesions on lauki fruits with pinkish centers.",
-        "causes": "Frequent rainfall, high relative humidity (90%), and temperatures around 22-27°C.",
-        "chemical_treatment": "Carbendazim 12% + Mancozeb 63% WP @ 2 g/L or Azoxystrobin 23% SC @ 1 ml/L.",
-        "organic_treatment": "Trichoderma harzianum @ 5 g/L seed treatment and foliar spray; 5% garlic bulb extract.",
-        "prevention": "Ensure 2-year crop rotation, trellis vines on bower/mandap system to avoid fruit soil contact.",
-        "fertilizer": "Adequate phosphorus and potash for tissue resilience.",
-        "pest_control": "Control red pumpkin beetles.",
-        "farmer_tips": "Trellis lauki vines off the ground to drastically cut fruit anthracnose incidence."
-    },
-    "Okra Yellow Vein Mosaic Virus": {
-        "crop": "Okra / Lady Finger / Bhindi", "scientific": "Abelmoschus esculentus", "pathogen": "Bhendi Yellow Vein Mosaic Virus (BYVMV)",
-        "category": "Viral Disease", "severity": "Critical", "badge": "status-danger",
-        "overview": "Severe network of bright yellow veins across leaves; stunted plants produce small, hard, pale yellow fruits.",
-        "etiology": "Transmitted by the whitefly (Bemisia tabaci); severe viral threat to okra production.",
-        "symptoms": "Clear vein clearing followed by complete yellowing of entire leaf vein network; dwarfed chlorotic fruits.",
-        "causes": "Whitefly proliferation during hot and humid seasons (March-September).",
-        "chemical_treatment": "Acetamiprid 20% SP @ 0.3 g/L or Dinotefuran 20% SG @ 0.5 g/L.",
-        "organic_treatment": "Install yellow sticky traps (20/acre) and spray 5% Neem Seed Kernel Extract (NSKE) weekly.",
-        "prevention": "Sow certified resistant varieties (e.g., Parbhani Kranti); remove alternate weed hosts.",
-        "fertilizer": "Balanced NPK; avoid excessive urea which causes succulent growth preferred by whiteflies.",
-        "pest_control": "Monitor whitefly nymphs on leaf undersides constantly.",
-        "farmer_tips": "Sow border crops of maize or bajra to physically block whiteflies from entering bhindi beds."
-    },
-    "Onion Purple Blotch": {
-        "crop": "Onion", "scientific": "Allium cepa", "pathogen": "Alternaria porri (Fungus)",
-        "category": "Fungal Blight", "severity": "High", "badge": "status-danger",
-        "overview": "Sunken purple lesions with yellow borders on onion leaves, causing tops to fall over and reducing bulb size.",
-        "etiology": "Survives in onion debris and volunteer bulbs; spores dispersed by wind and rain splash.",
-        "symptoms": "Water-soaked spots turning dark purple with yellow halos; leaves break at lesion points.",
-        "causes": "Warm temperatures (24-30°C) with high relative humidity (>80%) and prolonged dew.",
-        "chemical_treatment": "Mancozeb 75% WP @ 2.5 g/L or Difenoconazole 25% EC @ 1 ml/L.",
-        "organic_treatment": "Foliar spray of Trichoderma viride @ 5 g/L mixed with soap nut extract.",
-        "prevention": "3-year crop rotation; well-drained raised beds; treat seedling roots with bio-fungicide.",
-        "fertilizer": "Apply adequate potassium and sulfur to harden foliage.",
-        "pest_control": "Strictly control onion thrips which provide entry wounds.",
-        "farmer_tips": "Always add a sticker/spreader when spraying onion foliage due to its slippery waxy leaves."
-    }
-}
+def load_json_file(file_path: Path, fallback_data):
+    if file_path.is_file():
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as exc:
+            logger.error(f"Error reading {file_path}: {exc}")
+            return fallback_data
+    return fallback_data
 
-def get_crops_database():
-    return DEFAULT_35_CROPS
+def save_json_file(file_path: Path, data):
+    try:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as exc:
+        logger.error(f"Error writing to {file_path}: {exc}")
+        return False
 
 def get_diseases_database():
-    return EXHAUSTIVE_35_CROP_PATHOLOGY
+    candidates = [
+        DATA_DIR / "diseases.json",
+        DATA_DIR / "disease_database.json",
+        DATA_DIR / "plant_database.json",
+    ]
+    for c in candidates:
+        if c.is_file():
+            data = load_json_file(c, {})
+            if isinstance(data, dict) and any("Pepper" in k or "Tomato" in k for k in data.keys()):
+                return data
+    return {}
+
+def get_crops_database():
+    candidates = [
+        DATA_DIR / "plant_database.json",
+        DATA_DIR / "crop_database.json",
+        DATA_DIR / "crops.json",
+    ]
+    for c in candidates:
+        if c.is_file():
+            data = load_json_file(c, {})
+            if isinstance(data, dict) and any("Solanaceae" in k or "Cucurbit" in k for k in data.keys()):
+                return data
+    return DEFAULT_35_CROPS
+
+def get_advisory_database():
+    candidates = [
+        DATA_DIR / "advisory_rules.json",
+        DATA_DIR / "advisory_database.json",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return load_json_file(c, {})
+    return {}
+
+def get_farmer_stories():
+    return load_json_file(DATA_DIR / "farmer_stories.json", [])
+
+def get_advertisements():
+    return load_json_file(DATA_DIR / "advertisements.json", [])
 
 def get_disease_detail(condition_name: str):
     db = get_diseases_database()
-    if condition_name in db:
+    if db and condition_name in db:
         return db[condition_name]
-    for key, val in db.items():
-        if condition_name.lower() in key.lower() or key.lower() in condition_name.lower():
-            return val
+    
     return {
         "crop": "Vegetable Crop",
-        "scientific": "",
-        "pathogen": "Pathological Organism",
-        "category": "Agronomic Stress",
+        "scientific_crop": "",
+        "category": "General Agronomic Health",
         "severity": "Moderate",
+        "status": "Analyzed",
         "badge": "status-warning",
-        "overview": "Detailed clinical agronomic profile cataloged in the PlantCare AI Pathology Engine.",
-        "etiology": "Pathogen infection accelerated by foliar wetness and microclimate fluctuations.",
-        "symptoms": "Visible chlorotic spotting, tissue necrosis, or vascular wilting.",
-        "causes": "High canopy humidity, inoculum persistence, or physiological stress.",
-        "chemical_treatment": "Apply broad-spectrum registered protective fungicide/bactericide strictly per label.",
-        "organic_treatment": "Foliar application of bio-antagonists (Bacillus subtilis or Trichoderma) and neem oil.",
-        "prevention": "Crop rotation, raised beds, drip irrigation, and removal of infected crop residues.",
-        "fertilizer": "Maintain balanced N-P-K; avoid excessive nitrogen.",
+        "overview": "Comprehensive pathological details for this condition are cataloged in the PlantCare AI Agronomic Hub.",
+        "etiology": "Pathological inoculation favored by high foliar wetness and microclimate fluctuations.",
+        "symptoms": "Visible chlorotic spotting, necrosis, lesions, or vascular wilting across foliar/fruit tissue.",
+        "causes": "Excess canopy humidity, pathogen inoculums, or physiological nutritional imbalance.",
+        "chemical_treatment": "Apply locally registered protective fungicides or bactericides strictly according to label directions.",
+        "organic_treatment": "Foliar application of bio-antagonists (Bacillus subtilis or Trichoderma) and neem oil extract.",
+        "prevention": "Ensure clean seed stock, proper row ventilation, balanced fertigation, and field sanitation.",
+        "fertilizer": "Maintain balanced N-P-K ratios; supplement with Calcium and Potassium.",
         "pest_control": "Monitor insect vectors (whiteflies, thrips, aphids) regularly.",
-        "farmer_tips": "Inspect plants in the early morning while disease symptoms are most visible."
+        "farmer_tips": "Conduct field inspections in early morning while symptoms are crisp.",
+        "ideal_climate": "Humid, warm canopy microclimate",
+        "economic_threshold": "Initiate corrective action upon observing 5% foliar damage."
     }
 
+def save_uploaded_asset(uploaded_file, target_folder: Path, prefix: str = "img") -> str:
+    ext = Path(uploaded_file.name).suffix.lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+    safe_name = f"{prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}{ext}"
+    target_path = target_folder / safe_name
+    
+    img = Image.open(uploaded_file)
+    img = img.convert("RGB")
+    img.save(target_path, quality=85, optimize=True)
+    return str(target_path.relative_to(BASE_DIR)).replace("\\", "/")
+
 # ============================================================
-# 5. ENTERPRISE CSS DESIGN SYSTEM (DESKTOP & MOBILE AUTO-FIT)
+# 3. ULTRA-PREMIUM DYNAMIC ANIMATED & RESPONSIVE CSS
 # ============================================================
 def inject_custom_css():
     st.markdown("""
@@ -457,13 +231,14 @@ def inject_custom_css():
         --accent-emerald: #10b981;
         --text-main: #091e14;
         --text-muted: #4a6356;
-        --card-bg: rgba(255, 255, 255, 0.94);
-        --card-border: rgba(226, 236, 230, 0.92);
-        --shadow-sm: 0 4px 18px rgba(6, 78, 59, 0.05);
-        --shadow-md: 0 12px 38px rgba(6, 78, 59, 0.09);
-        --shadow-lg: 0 24px 64px rgba(6, 78, 59, 0.15);
+        --card-bg: rgba(255, 255, 255, 0.90);
+        --card-border: rgba(226, 236, 230, 0.88);
+        --shadow-sm: 0 4px 14px rgba(6, 78, 59, 0.04);
+        --shadow-md: 0 12px 32px rgba(6, 78, 59, 0.07);
+        --shadow-lg: 0 22px 55px rgba(6, 78, 59, 0.12);
     }
 
+    /* Ambient Moving Gradient Background */
     @keyframes ambientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -473,28 +248,12 @@ def inject_custom_css():
     .stApp {
         background: linear-gradient(-45deg, #f0fdf4, #ecfdf5, #f7faf8, #e6fcf0);
         background-size: 400% 400%;
-        animation: ambientShift 22s ease infinite;
+        animation: ambientShift 20s ease infinite;
         color: var(--text-main);
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* Auto Responsive Block Container */
-    .block-container {
-        max-width: 1400px;
-        padding-top: 1.2rem;
-        padding-bottom: 4rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    /* Desktop View vs Mobile View Optimization */
-    img {
-        max-width: 100% !important;
-        height: auto !important;
-        border-radius: 18px;
-        box-shadow: var(--shadow-sm);
-    }
-
+    /* Modern Luxury Sidebar */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #02261d 0%, #043628 45%, #064e3b 100%);
         border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -504,18 +263,18 @@ def inject_custom_css():
         color: #f0fdf4 !important;
     }
 
-    .brand-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.35rem;
-        font-weight: 850;
-        color: var(--primary-dark);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    /* Auto-Responsive Container Layout */
+    .block-container {
+        max-width: 1340px;
+        padding-top: 1.8rem;
+        padding-bottom: 4rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 
+    /* Fluid Responsive Hero Banner */
     .hero-banner {
-        padding: 3.2rem 3rem;
+        padding: 3.4rem 3.2rem;
         border-radius: 28px;
         background: linear-gradient(135deg, #022c22 0%, #044433 35%, #065f46 70%, #047857 100%);
         color: white;
@@ -523,36 +282,58 @@ def inject_custom_css():
         position: relative;
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.15);
-        margin-bottom: 1.8rem;
+        margin-bottom: 2rem;
         width: 100%;
+    }
+    .hero-banner::before {
+        content: "";
+        position: absolute;
+        width: 440px;
+        height: 440px;
+        right: -120px;
+        top: -140px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(52, 211, 153, 0.28) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .hero-banner::after {
+        content: "";
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        left: -80px;
+        bottom: -100px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+        pointer-events: none;
     }
     .hero-kicker {
         display: inline-flex;
         align-items: center;
         gap: 0.45rem;
-        background: rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.12);
         backdrop-filter: blur(12px);
         padding: 0.4rem 1.1rem;
         border-radius: 999px;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 800;
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: #d1fae5;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        margin-bottom: 1.1rem;
+        border: 1px solid rgba(255, 255, 255, 0.22);
     }
     .hero-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: clamp(2.2rem, 4.4vw, 3.8rem);
+        font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(2.2rem, 4.2vw, 3.8rem);
         line-height: 1.15;
-        margin: 0.2rem 0 0.8rem;
+        margin: 0.3rem 0 0.8rem;
         font-weight: 700;
         color: #ffffff;
         letter-spacing: -0.02em;
     }
     .hero-desc {
-        max-width: 760px;
+        max-width: 720px;
         font-size: clamp(1rem, 1.8vw, 1.15rem);
         line-height: 1.7;
         color: #e6fcf0;
@@ -562,22 +343,23 @@ def inject_custom_css():
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.48rem 1.2rem;
+        padding: 0.5rem 1.2rem;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.14);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         font-size: 0.88rem;
         font-weight: 700;
         color: #a7f3d0;
     }
 
+    /* Glassmorphic Luxury Cards */
     .product-card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 22px;
         padding: 1.8rem 1.9rem;
-        margin: 0.9rem 0;
+        margin: 0.95rem 0;
         box-shadow: var(--shadow-sm);
         backdrop-filter: blur(14px);
         transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -591,7 +373,7 @@ def inject_custom_css():
     .product-card h3 {
         margin: 0 0 0.6rem;
         color: var(--primary-dark);
-        font-size: 1.22rem;
+        font-size: 1.25rem;
         font-weight: 800;
     }
     .card-muted {
@@ -600,18 +382,19 @@ def inject_custom_css():
         font-size: 0.96rem;
     }
 
+    /* Metric Visualizers */
     .metric-container {
         background: #ffffff;
         border: 1px solid var(--card-border);
         border-radius: 20px;
-        padding: 1.35rem 1.2rem;
+        padding: 1.35rem 1.3rem;
         text-align: center;
         box-shadow: var(--shadow-sm);
         width: 100%;
         margin-bottom: 0.75rem;
     }
     .metric-value {
-        font-size: 1.8rem;
+        font-size: 1.85rem;
         font-weight: 850;
         color: var(--primary);
     }
@@ -624,6 +407,7 @@ def inject_custom_css():
         margin-top: 0.35rem;
     }
 
+    /* Results Banner */
     .result-panel {
         border-radius: 26px;
         padding: 2.2rem;
@@ -634,6 +418,7 @@ def inject_custom_css():
         width: 100%;
     }
 
+    /* Status Badges */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -643,9 +428,21 @@ def inject_custom_css():
         font-weight: 800;
         font-size: 0.82rem;
     }
-    .status-healthy { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-    .status-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-    .status-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .status-healthy {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+    .status-warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+    }
+    .status-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
 
     .confidence-tag {
         display: inline-flex;
@@ -660,6 +457,7 @@ def inject_custom_css():
         margin-left: 0.5rem;
     }
 
+    /* Probability Grid */
     .prob-grid-row {
         display: grid;
         grid-template-columns: 260px 1fr 90px;
@@ -667,66 +465,155 @@ def inject_custom_css():
         align-items: center;
         margin: 0.85rem 0;
     }
-    .prob-label { font-weight: 750; font-size: 0.94rem; color: var(--text-main); }
-    .prob-track { height: 12px; background: #e8f1ec; border-radius: 999px; overflow: hidden; }
-    .prob-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); border-radius: 999px; }
-    .prob-pct { text-align: right; font-weight: 850; color: var(--primary-dark); font-size: 0.96rem; }
+    .prob-label {
+        font-weight: 750;
+        font-size: 0.94rem;
+        color: var(--text-main);
+    }
+    .prob-track {
+        height: 12px;
+        background: #e8f1ec;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .prob-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        border-radius: 999px;
+    }
+    .prob-pct {
+        text-align: right;
+        font-weight: 850;
+        color: var(--primary-dark);
+        font-size: 0.96rem;
+    }
 
+    /* 2x2 Info Grid */
     .info-layout-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.35rem;
         margin-top: 1.1rem;
     }
-    .info-box { background: #ffffff; border: 1px solid var(--card-border); border-radius: 18px; padding: 1.45rem; }
-    .info-box-title { font-size: 1.02rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.5rem; }
-    .info-box-text { font-size: 0.93rem; color: var(--text-main); line-height: 1.65; margin: 0; }
+    .info-box {
+        background: #ffffff;
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 1.45rem;
+    }
+    .info-box-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        margin-bottom: 0.55rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .info-box-text {
+        font-size: 0.93rem;
+        color: var(--text-main);
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* Sponsored Card */
+    .ad-card {
+        background: #ffffff;
+        border: 1px solid #bbf7d0;
+        border-radius: 24px;
+        padding: 1.8rem;
+        margin: 1.4rem 0;
+        box-shadow: var(--shadow-md);
+        width: 100%;
+    }
+    .ad-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.85rem;
+    }
+    .ad-badge {
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: #ecfdf5;
+        color: #065f46;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid #a7f3d0;
+    }
+    .ad-title {
+        font-size: 1.35rem;
+        font-weight: 850;
+        color: #064e3b;
+        margin: 0.4rem 0;
+    }
 
     .disclaimer-card {
-        font-size: 0.86rem; color: #64748b; background: #ffffff; border-left: 4px solid #059669;
-        padding: 0.95rem 1.25rem; border-radius: 0 14px 14px 0; margin-top: 1.6rem; line-height: 1.65; box-shadow: var(--shadow-sm);
+        font-size: 0.86rem;
+        color: #64748b;
+        background: #ffffff;
+        border-left: 4px solid #059669;
+        padding: 0.95rem 1.25rem;
+        border-radius: 0 14px 14px 0;
+        margin-top: 1.6rem;
+        line-height: 1.65;
+        box-shadow: var(--shadow-sm);
     }
 
     .app-footer-bar {
-        margin-top: 4.5rem; padding: 2.2rem 0.5rem 1.8rem 0.5rem; border-top: 1px solid var(--card-border);
-        display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.92rem; flex-wrap: wrap; gap: 1.2rem;
+        margin-top: 4.5rem;
+        padding: 2.2rem 0.5rem 1.8rem 0.5rem;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        flex-wrap: wrap;
+        gap: 1.2rem;
     }
-    .footer-brand { font-weight: 850; color: var(--primary-dark); font-size: 1.05rem; }
+    .footer-brand {
+        font-weight: 850;
+        color: var(--primary-dark);
+        font-size: 1.05rem;
+    }
 
-    /* ========================================================
-       MOBILE AUTO-VIEWPORT OPTIMIZATION (< 850px)
-       ======================================================== */
+    /* ============================================================
+       MOBILE VIEWPORT ADAPTIVE RESPONSIVENESS (< 850px)
+       ============================================================ */
     @media (max-width: 850px) {
         .block-container {
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
-            padding-top: 0.8rem !important;
+            padding-left: 0.85rem !important;
+            padding-right: 0.85rem !important;
+            padding-top: 1rem !important;
         }
         .hero-banner {
-            padding: 2rem 1.3rem !important;
+            padding: 2rem 1.4rem !important;
             border-radius: 20px !important;
-            margin-bottom: 1.2rem !important;
         }
         .hero-title {
-            font-size: 1.95rem !important;
+            font-size: 2rem !important;
         }
         .product-card {
-            padding: 1.35rem 1.2rem !important;
+            padding: 1.4rem 1.25rem !important;
             border-radius: 18px !important;
         }
         .prob-grid-row {
             grid-template-columns: 1fr !important;
-            gap: 5px !important;
+            gap: 6px !important;
         }
         .prob-pct {
             text-align: left !important;
         }
         .info-layout-grid {
             grid-template-columns: 1fr !important;
-            gap: 0.85rem !important;
+            gap: 0.9rem !important;
         }
         .result-panel {
-            padding: 1.4rem 1.15rem !important;
+            padding: 1.5rem 1.25rem !important;
             border-radius: 20px !important;
         }
         .app-footer-bar {
@@ -739,7 +626,7 @@ def inject_custom_css():
     """, unsafe_allow_html=True)
 
 # ============================================================
-# 6. AI DEEP LEARNING MODEL ENGINE
+# 4. DEEP LEARNING MODEL ENGINE & INFERENCE
 # ============================================================
 def find_model_path():
     candidates = [
@@ -811,13 +698,13 @@ def validate_image_quality(img):
     brightness = 0.299 * r + 0.587 * g + 0.114 * b
     warnings = []
     if brightness < 40:
-        warnings.append("Image lighting appears dim. Maintain clear lighting for top neural confidence.")
+        warnings.append("The image appears dark. Ensure adequate illumination for reliable confidence.")
     elif brightness > 225:
-        warnings.append("Image appears overexposed. Avoid direct glare on the leaf/fruit texture.")
+        warnings.append("The image appears overexposed. Ensure leaf/fruit texture is clearly visible.")
     var = stat.var
     avg_var = sum(var[:3]) / 3.0
     if avg_var < 100:
-        warnings.append("Image focus appears soft. A crisp, sharp photo improves diagnostics.")
+        warnings.append("The image appears soft in focus. A sharper, focused photo is recommended.")
     return warnings
 
 def validate_and_load_image(uploaded_file):
@@ -826,7 +713,7 @@ def validate_and_load_image(uploaded_file):
         img = img.convert("RGB")
         return img, None
     except Exception:
-        return None, "Unable to read image file. Please provide a standard JPG, PNG, or WEBP."
+        return None, "Unable to read the uploaded image. Please provide a valid JPG, JPEG, PNG, or WEBP file."
 
 def prepare_tensor(image, size):
     resized = image.resize((size, size), Image.Resampling.LANCZOS)
@@ -839,14 +726,14 @@ def normalize_probabilities(raw_output):
     if probs.ndim != 1:
         probs = probs.reshape(-1)
     if probs.size == 0:
-        raise ValueError("Model produced an empty probability array.")
+        raise ValueError("Model produced an empty probability vector.")
     if np.any(probs < 0) or np.max(probs) > 1.0 or not np.isclose(float(probs.sum()), 1.0, atol=0.05):
         probs = tf.nn.softmax(probs).numpy()
     return probs
 
 def execute_adaptive_prediction(model, image, model_classes):
     if model is None:
-        raise RuntimeError("AI model is offline. Ensure plant_disease_model.h5 is in the application folder.")
+        raise RuntimeError("AI model is currently offline. Please ensure plant_disease_model.h5 is in the application directory.")
 
     target_resolutions = inspect_model_dimensions(model)
 
@@ -877,22 +764,11 @@ def execute_adaptive_prediction(model, image, model_classes):
         except Exception:
             continue
 
-    raise RuntimeError("Analysis could not resolve. Please provide a clear leaf/fruit photo.")
+    raise RuntimeError("Unable to complete screening for this image. Please upload a clear leaf/fruit photo and retry.")
 
 # ============================================================
-# 7. ONE-TAP GEOLOCATION & WEATHER / MAPS SERVICES
+# 5. WEATHER & SPRAY ADVISORY ENGINE
 # ============================================================
-def fetch_auto_geolocation():
-    """Fetches user approximate coordinates using standard IP Geolocation."""
-    try:
-        resp = requests.get("https://ipapi.co/json/", timeout=4)
-        if resp.status_code == 200:
-            data = resp.json()
-            return float(data.get("latitude", 25.5941)), float(data.get("longitude", 85.1376)), f"{data.get('city', 'Local')}, {data.get('region', 'India')}"
-    except Exception:
-        pass
-    return 25.5941, 85.1376, "Default GPS Region (Patna, India)"
-
 def get_live_weather_data(latitude: float, longitude: float):
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,precipitation_probability,wind_speed_10m&timezone=auto"
     try:
@@ -908,8 +784,60 @@ def get_live_weather_data(latitude: float, longitude: float):
             "source": "Open-Meteo Satellite API"
         }, None
     except Exception as exc:
-        return None, f"Could not connect to weather service: {exc}"
+        return None, f"Could not connect to live weather service: {exc}"
 
+def calculate_spray_advisory(temp, humidity, rain_prob, wind_speed, rules):
+    spray_limits = rules.get("spray_rules", {
+        "max_wind_speed_kmh": 15.0,
+        "max_rain_probability_pct": 30.0,
+        "min_temperature_c": 10.0,
+        "max_temperature_c": 35.0,
+        "max_relative_humidity_pct": 88.0
+    })
+
+    reasons = []
+    suitable = True
+
+    if wind_speed > spray_limits["max_wind_speed_kmh"]:
+        suitable = False
+        reasons.append(f"High wind speed ({wind_speed:.1f} km/h > {spray_limits['max_wind_speed_kmh']} km/h) creates significant spray drift hazard.")
+    if rain_prob > spray_limits["max_rain_probability_pct"]:
+        suitable = False
+        reasons.append(f"High rain chance ({rain_prob:.0f}% > {spray_limits['max_rain_probability_pct']}%) risks chemical wash-off before foliar uptake.")
+    if temp > spray_limits["max_temperature_c"]:
+        suitable = False
+        reasons.append(f"Elevated temperature ({temp:.1f}°C) may cause foliar scorch and fast droplet evaporation.")
+    elif temp < spray_limits["min_temperature_c"]:
+        suitable = False
+        reasons.append(f"Low temperature ({temp:.1f}°C) slows systemic chemical absorption.")
+    if humidity > spray_limits["max_relative_humidity_pct"]:
+        reasons.append(f"High humidity ({humidity:.0f}%) extends drying time and may encourage spore germination.")
+
+    status = "Favorable (Safe Application Window)" if suitable else "Unfavorable (Postpone Spraying)"
+    return status, reasons
+
+def calculate_disease_risks(temp, humidity, rules):
+    thresholds = rules.get("disease_risk_thresholds", {
+        "late_blight": {"min_temp": 10.0, "max_temp": 23.0, "min_humidity": 85.0, "risk_label": "Critical Risk (Late Blight / Oomycete Pressure)"},
+        "early_blight": {"min_temp": 22.0, "max_temp": 30.0, "min_humidity": 70.0, "risk_label": "High Risk (Fungal Blight & Leaf Mold Spore Germination)"},
+        "bacterial_spot": {"min_temp": 24.0, "max_temp": 34.0, "min_humidity": 78.0, "risk_label": "Elevated Risk (Bacterial Foliar Invasion Pressure)"},
+        "spider_mites": {"min_temp": 27.0, "max_temp": 45.0, "max_humidity": 50.0, "risk_label": "Elevated Risk (Hot, Dry Microclimate Encouraging Spider Mites)"}
+    })
+    active_risks = []
+    for _, config in thresholds.items():
+        min_t = config.get("min_temp", -999)
+        max_t = config.get("max_temp", 999)
+        min_h = config.get("min_humidity", 0)
+        max_h = config.get("max_humidity", 100)
+        if (min_t <= temp <= max_t) and (min_h <= humidity <= max_h):
+            active_risks.append(config.get("risk_label"))
+    if not active_risks:
+        active_risks.append("Baseline Pathogen Risk (Normal Atmospheric Conditions)")
+    return active_risks
+
+# ============================================================
+# 6. GEOSPATIAL MAP RESOURCE QUERY
+# ============================================================
 def maps_query_url(lat, lon, query):
     return f"https://www.google.com/maps/search/{quote_plus(query)}/@{lat},{lon},14z"
 
@@ -927,20 +855,24 @@ def query_nearby_plant_care(lat, lon, limit=8):
     );
     out center tags;
     """
-    headers = {"User-Agent": "PlantCareAI/9.0 (Enterprise Agritech)"}
-    endpoints = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
+    headers = {"User-Agent": "PlantCareAI/8.0 (Commercial Agritech AI)"}
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+    ]
     data = None
+    last_err = None
     for ep in endpoints:
         try:
             resp = requests.post(ep, data=query.encode("utf-8"), headers=headers, timeout=22)
             resp.raise_for_status()
             data = resp.json()
             break
-        except Exception:
-            continue
+        except Exception as exc:
+            last_err = exc
 
     if data is None:
-        return []
+        raise RuntimeError(f"Geospatial service error: {last_err}")
 
     results = []
     seen = set()
@@ -949,7 +881,7 @@ def query_nearby_plant_care(lat, lon, limit=8):
         name = tags.get("name")
         if not name:
             continue
-        norm_key = name.strip().lower()
+        norm_key = re.sub(r"\s+", " ", name.strip().lower())
         if norm_key in seen:
             continue
         seen.add(norm_key)
@@ -960,13 +892,18 @@ def query_nearby_plant_care(lat, lon, limit=8):
         if slat is None or slon is None:
             continue
 
+        street = tags.get("addr:street", "")
+        city = tags.get("addr:city", "")
+        addr = ", ".join([x for x in [street, city] if x])
         raw_type = tags.get("shop") or tags.get("amenity") or tags.get("craft") or "agricultural"
         cat_title = "🌱 Nursery / Garden Center" if "garden" in raw_type else "🌾 Agricultural Supplies & Seeds"
 
         results.append({
             "name": name,
             "type": cat_title,
-            "address": tags.get("addr:street", "Address available on map"),
+            "address": addr or "Address available in Google Maps view",
+            "lat": float(slat),
+            "lon": float(slon),
             "maps": maps_query_url(float(slat), float(slon), name),
         })
         if len(results) >= limit:
@@ -974,18 +911,23 @@ def query_nearby_plant_care(lat, lon, limit=8):
 
     return results
 
+# ============================================================
+# 7. EXPORTABLE PLANT HEALTH REPORT GENERATOR
+# ============================================================
 def generate_plain_text_report(p, info):
     top5_formatted = "\n".join([f"  {i}. {n} — {v:.2f}%" for i, (n, v) in enumerate(p["top5"], 1)])
+    
     return f"""======================================================================
-PLANTCARE AI — ENTERPRISE PLANT HEALTH DOSSIER
+PLANTCARE AI — PLANT HEALTH SCREENING DOSSIER
 Powered by SEA AUTO
+Developed by Madhav Kumar
 ======================================================================
 Screening Date & Time : {p["timestamp"]}
 Crop Name             : {p["plant"]}
 Diagnosed Condition   : {p["condition"]}
-Etiological Class     : {p["category"]}
-Severity Level        : {p["severity"]}
-Neural Confidence     : {p["confidence"]:.2f}%
+Condition Category    : {p["category"]}
+Health Status         : {info.get("status", "Analyzed")}
+Confidence Level      : {p["confidence"]:.2f}%
 
 ----------------------------------------------------------------------
 1. CLINICAL OVERVIEW & DESCRIPTION
@@ -1003,151 +945,187 @@ Neural Confidence     : {p["confidence"]:.2f}%
 Symptoms:
 {info.get("symptoms", "N/A")}
 
-Causes & Pre-disposing Factors:
+Possible Causes:
 {info.get("causes", "N/A")}
 
 ----------------------------------------------------------------------
 4. TREATMENT & MANAGEMENT REGIMES
 ----------------------------------------------------------------------
-Chemical Regimen:
-{info.get("chemical_treatment", "N/A")}
+{info.get("chemical_treatment", info.get("treatment", "N/A"))}
 
 Organic Alternative:
 {info.get("organic_treatment", "N/A")}
 
 ----------------------------------------------------------------------
-5. PREVENTATIVE AGRONOMIC PROTOCOL
+5. PREVENTATIVE AGRONOMIC SCHEDULE
 ----------------------------------------------------------------------
 {info.get("prevention", "N/A")}
 
 ----------------------------------------------------------------------
-6. NUTRITION & VECTOR CONTROLS
+6. SMART FERTILIZER & PEST CONTROL GUIDANCE
 ----------------------------------------------------------------------
-Nutrition Guidance:
+Fertilizer Guidance:
 {info.get("fertilizer", "N/A")}
 
-Vector Management:
+Pest Management:
 {info.get("pest_control", "N/A")}
 
-Field Rules:
+Farmer / Grower Tips:
 {info.get("farmer_tips", "N/A")}
 
 ----------------------------------------------------------------------
-7. NEURAL PROBABILITY SPECTRUM (TOP 5)
+7. AI PROBABILITY DISTRIBUTION (TOP 5)
 ----------------------------------------------------------------------
 {top5_formatted}
 
 ======================================================================
-© 2026 PlantCare AI. Powered by SEA AUTO. All rights reserved.
+Disclaimer: AI-assisted visual screening is intended as an initial 
+assessment. Use locally approved products according to label directions 
+and consult an agriculture professional when needed.
+Developed by Madhav Kumar | © 2026 PlantCare AI. All rights reserved.
 ======================================================================
 """
 
 # ============================================================
-# INITIALIZE STATE & LOAD AI MODEL
+# INITIALIZE SESSION STATE & MODEL
 # ============================================================
 if "prediction_data" not in st.session_state:
     st.session_state.prediction_data = None
+if "user_coords" not in st.session_state:
+    st.session_state.user_coords = None
 if "nearby_shops" not in st.session_state:
     st.session_state.nearby_shops = None
-if "user_lat" not in st.session_state:
-    st.session_state.user_lat = 25.5941
-if "user_lon" not in st.session_state:
-    st.session_state.user_lon = 85.1376
-if "user_location_name" not in st.session_state:
-    st.session_state.user_location_name = "Default Coordinates (Patna, Bihar)"
 
 MODEL_OBJ, MODEL_LOG = load_screening_model()
 
 # ============================================================
-# HEADER BAR & SIDEBAR
+# SPONSORED PARTNER COMPONENT
 # ============================================================
-def render_top_header():
-    col_brand, col_lang = st.columns([3, 1])
-    with col_brand:
-        st.markdown(f"""
-        <div class="brand-title">
-            <span>🌿</span> {t("app_title")} &nbsp;<span style="font-size:0.75rem; font-weight:700; color:#059669; background:#ecfdf5; padding:0.2rem 0.6rem; border-radius:99px;">{t("powered_by")}</span>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_lang:
-        current_lang = st.session_state.get("lang", "en")
-        next_lang = "hi" if current_lang == "en" else "en"
-        btn_label = "🇮🇳 हिन्दी" if current_lang == "en" else "🇬🇧 English"
-        if st.button(btn_label, use_container_width=True):
-            st.session_state.lang = next_lang
-            st.rerun()
+def render_sponsored_partner_card():
+    ads = get_advertisements()
+    active_ads = []
+    today = datetime.now().strftime("%Y-%m-%d")
 
+    for ad in ads:
+        if ad.get("status") == "active":
+            start_date = ad.get("start_date", "")
+            end_date = ad.get("end_date", "")
+            if start_date and start_date > today:
+                continue
+            if end_date and end_date < today:
+                continue
+            active_ads.append(ad)
+
+    if not active_ads:
+        return
+
+    active_ads.sort(key=lambda x: x.get("priority", 99))
+    top_ad = active_ads[0]
+
+    st.markdown(f"""
+    <div class="ad-card">
+        <div class="ad-header">
+            <span class="ad-badge">✦ Featured Partner</span>
+            <span style="font-size: 0.82rem; color: #64748b; font-weight: 700;">{top_ad.get('company', 'SEA AUTO Ecosystem')}</span>
+        </div>
+        <div class="ad-title">{html.escape(top_ad.get('title', ''))}</div>
+        <div style="font-size: 0.96rem; color: #334155; line-height: 1.65; margin-bottom: 0.85rem;">
+            {html.escape(top_ad.get('description', ''))}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if top_ad.get("image"):
+        img_p = BASE_DIR / top_ad["image"]
+        if img_p.is_file():
+            st.image(str(img_p), use_container_width=True)
+
+    if top_ad.get("button_url") and top_ad.get("button_text"):
+        st.link_button(top_ad["button_text"], top_ad["button_url"])
+
+# ============================================================
+# SIDEBAR
+# ============================================================
 def render_sidebar():
     with st.sidebar:
-        st.markdown(f"""
+        st.markdown("""
         <div style="padding: 0.5rem 0 1.2rem;">
             <div style="font-size: 2.3rem;">🌿</div>
-            <div style="font-size: 1.6rem; font-weight: 850; letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif;">{t("app_title")}</div>
-            <div style="opacity: 0.82; font-size: 0.82rem; margin-top: 0.25rem;">{t("tagline")}</div>
+            <div style="font-size: 1.6rem; font-weight: 850; letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif;">PlantCare AI</div>
+            <div style="opacity: 0.82; font-size: 0.82rem; margin-top: 0.25rem;">
+                AI-Powered Plant Health Screening
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
         selected_page = st.radio(
             "Navigation Menu",
             [
-                t("nav_home"),
-                t("nav_scan"),
-                t("nav_report"),
-                t("nav_crops"),
-                t("nav_knowledge"),
-                t("nav_stories"),
-                t("nav_weather"),
-                t("nav_nearby"),
-                t("nav_admin"),
-                t("nav_about")
+                "🏠 Home",
+                "🔬 Disease Detection",
+                "📄 Plant Health Report",
+                "🌱 Explore Crops",
+                "📚 Disease Knowledge Hub",
+                "🌾 Farmer Stories",
+                "🌦️ Weather & Spray Advisory",
+                "📍 Nearby Plant Care",
+                "⚙️ Content Manager",
+                "ℹ️ About PlantCare AI"
             ],
             label_visibility="collapsed",
             key="navigation_page_selector"
         )
 
         st.markdown("---")
-        st.markdown("**AI MODEL ENGINE**")
+        st.markdown("**AI MODEL STATUS**")
         if MODEL_OBJ is not None:
-            st.markdown(f"**{t('model_online')}**")
+            st.markdown("🟢 **Model Online & Loaded**")
         else:
-            st.markdown(f"**{t('model_offline')}**")
+            st.markdown("🟡 **Model Offline (Demo Mode)**")
+            st.caption(f"Status: {MODEL_LOG}")
 
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown(f"""
-        <div style="padding: 1.1rem; border-radius: 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);">
-            <div style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75;">ENTERPRISE EDITION</div>
-            <div style="font-weight: 800; font-size: 1.05rem; margin-top: 0.2rem; color: #ffffff;">PlantCare AI</div>
-            <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 750; margin-top: 0.45rem;">✦ {t("powered_by")}</div>
+        st.markdown("""
+        <div style="padding: 1.1rem; border-radius: 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75;">DEVELOPER</div>
+            <div style="font-weight: 800; font-size: 1.05rem; margin-top: 0.2rem; color: #ffffff;">Madhav Kumar</div>
+            <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 750; margin-top: 0.45rem;">✦ Powered by SEA AUTO</div>
         </div>
         """, unsafe_allow_html=True)
 
         return selected_page
 
 # ============================================================
-# PAGE 1: HOME DASHBOARD
+# PAGE 1: HOME
 # ============================================================
 def render_home_page():
-    st.markdown(f"""
+    st.markdown("""
     <div class="hero-banner">
-        <div class="hero-kicker">{t("hero_kicker")}</div>
-        <div class="hero-title">{t("hero_heading")}</div>
-        <div class="hero-desc">{t("hero_desc")}</div>
-        <span class="hero-pill">🌿 {t("powered_by")}</span>
+        <div class="hero-kicker">✦ SMART AGRITECH INTELLIGENCE</div>
+        <div class="hero-title">PlantCare AI</div>
+        <div style="font-size: 1.38rem; font-weight: 700; color: #a7f3d0; margin-bottom: 0.6rem;">
+            AI-Powered Plant Health Screening & Diagnostic Engine
+        </div>
+        <div class="hero-desc">
+            Upload plant leaf or fruit imagery to receive objective AI-assisted health assessments, 
+            clinical pathology insights, and practical crop-care guidance across 35 agricultural crops.
+        </div>
+        <span class="hero-pill">🌿 Powered by SEA AUTO</span>
     </div>
     """, unsafe_allow_html=True)
 
     btn_col1, btn_col2, btn_col3 = st.columns([1.2, 1.4, 2.2])
     with btn_col1:
-        if st.button(t("btn_scan"), type="primary", use_container_width=True):
-            st.session_state["navigation_page_selector"] = t("nav_scan")
+        if st.button("Analyze Leaf / Fruit", type="primary", use_container_width=True):
+            st.session_state["navigation_page_selector"] = "🔬 Disease Detection"
             st.rerun()
     with btn_col2:
-        if st.button(t("btn_explore"), use_container_width=True):
-            st.session_state["navigation_page_selector"] = t("nav_crops")
+        if st.button("Explore 35 Crops", use_container_width=True):
+            st.session_state["navigation_page_selector"] = "🌱 Explore Crops"
             st.rerun()
     with btn_col3:
-        if st.button(t("btn_knowledge"), use_container_width=True):
-            st.session_state["navigation_page_selector"] = t("nav_knowledge")
+        if st.button("Disease Knowledge Hub", use_container_width=True):
+            st.session_state["navigation_page_selector"] = "📚 Disease Knowledge Hub"
             st.rerun()
 
     st.write("")
@@ -1156,57 +1134,77 @@ def render_home_page():
         st.markdown("""
         <div class="product-card">
             <h3>🔬 Multi-Organ Vision Screening</h3>
-            <div class="card-muted">Fast, objective visual assessment from leaf, fruit, or tuber imagery with transparent neural confidence distributions.</div>
+            <div class="card-muted">
+                Fast, objective visual assessment from leaf, fruit, or tuber imagery with transparent neural network confidence distributions.
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with f2:
         st.markdown("""
         <div class="product-card">
             <h3>📊 35-Crop Pathology Compendium</h3>
-            <div class="card-muted">Exhaustive clinical profiles, life cycles, symptoms, and verified chemical and biological spray dosages.</div>
+            <div class="card-muted">
+                Exhaustive disease descriptions, life cycles, stage-by-stage symptoms, and verified chemical and biological regimens.
+            </div>
         </div>
         """, unsafe_allow_html=True)
     with f3:
         st.markdown("""
         <div class="product-card">
-            <h3>🌱 One-Tap Geo Weather Advisory</h3>
-            <div class="card-muted">Live auto-GPS satellite spray suitability windows, disease infection pressure indexes, and localized resource maps.</div>
+            <h3>🌱 Dynamic Weather & Care Guidance</h3>
+            <div class="card-muted">
+                Live meteorological spray feasibility windows, disease pressure indexes, and localized plant-care discovery.
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
+    st.markdown("### 📢 Featured Products & Services")
+    render_sponsored_partner_card()
+
 # ============================================================
-# PAGE 2: SCAN PLANT (DISEASE DETECTION)
+# PAGE 2: DISEASE DETECTION
 # ============================================================
 def render_detection_page():
-    st.markdown(f"## {t('scan_heading')}")
-    st.caption(t("scan_desc"))
+    st.markdown("## 🔬 Disease Detection")
+    st.caption("Upload a clear photo of a plant leaf, fruit, or tuber to receive an AI-assisted health assessment and practical care guidance.")
 
-    uploaded_file = st.file_uploader(t("upload_label"), type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed")
+    model_classes = DEFAULT_MODEL_CLASSES
+
+    uploaded_file = st.file_uploader(
+        "Upload plant specimen image",
+        type=["jpg", "jpeg", "png", "webp"],
+        label_visibility="collapsed"
+    )
 
     if uploaded_file is not None:
         image, err_msg = validate_and_load_image(uploaded_file)
         if err_msg:
-            st.error(f"❌ {err_msg}")
+            st.error(f"❌ Analysis could not be completed: {err_msg}")
             return
 
-        for warn in validate_image_quality(image):
+        quality_warnings = validate_image_quality(image)
+        for warn in quality_warnings:
             st.warning(f"💡 {warn}")
 
-        col_prev, col_act = st.columns([1, 1.25], gap="large")
-        with col_prev:
-            st.image(image, caption="Specimen Image (Responsive)", use_container_width=True)
-        with col_act:
+        col_preview, col_action = st.columns([1, 1.25], gap="large")
+
+        with col_preview:
+            st.image(image, caption="Uploaded Specimen Preview", use_container_width=True)
+
+        with col_action:
             st.markdown("""
             <div class="product-card">
                 <h3>Ready for Neural Screening</h3>
-                <div class="card-muted">Click below to run multi-resolution tensor matching against certified pathology datasets.</div>
+                <div class="card-muted">
+                    Click the button below to initiate multi-resolution neural network classification against verified pathological datasets.
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
-            if st.button(t("analyze_btn"), type="primary", use_container_width=True):
-                with st.spinner("Executing neural diagnostic inference..."):
+            if st.button("🔬 Analyze Specimen", type="primary", use_container_width=True):
+                with st.spinner("Analyzing plant specimen..."):
                     try:
-                        condition, confidence, top5, used_res = execute_adaptive_prediction(MODEL_OBJ, image, DEFAULT_MODEL_CLASSES)
+                        condition, confidence, top5, used_res = execute_adaptive_prediction(MODEL_OBJ, image, model_classes)
                         info = get_disease_detail(condition)
 
                         st.session_state.prediction_data = {
@@ -1214,206 +1212,359 @@ def render_detection_page():
                             "condition": condition,
                             "confidence": confidence,
                             "top5": top5,
-                            "plant": info.get("crop", "Vegetable Crop"),
+                            "plant": info.get("crop", "Solanaceous Crop"),
                             "category": info.get("category", "General Condition"),
                             "severity": info.get("severity", "Moderate"),
                             "resolution": used_res,
                             "timestamp": datetime.now().strftime("%d %b %Y, %I:%M %p"),
                         }
-                        st.success(t("analysis_success"))
+                        st.success("Screening completed successfully.")
                     except Exception as exc:
                         st.session_state.prediction_data = None
-                        st.error(f"❌ Diagnostic error: {exc}")
+                        st.error(f"❌ Analysis could not be completed: {exc}")
 
     if st.session_state.prediction_data is not None:
         p = st.session_state.prediction_data
         info = get_disease_detail(p["condition"])
-        conf_tag = f'<span class="confidence-tag">{t("confidence_high")}</span>' if p["confidence"] >= 70.0 else f'<span class="confidence-tag">{t("confidence_low")}</span>'
+
+        st.write("")
+        conf_tag = (
+            '<span class="confidence-tag">🟢 High confidence</span>'
+            if p["confidence"] >= 70.0
+            else '<span class="confidence-tag">🟡 Moderate / Low confidence</span>'
+        )
 
         st.markdown(f"""
         <div class="result-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                <div style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; color: #64748b;">{t("result_heading")}</div>
-                <div><span class="status-badge {info.get('badge', 'status-warning')}">● {info.get('severity', 'Analyzed')}</span>{conf_tag}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-size: 0.82rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b;">
+                    Screening Result
+                </div>
+                <div>
+                    <span class="status-badge {info.get('badge', 'status-warning')}">● {info.get('status', 'Analyzed')}</span>
+                    {conf_tag}
+                </div>
             </div>
-            <div style="font-size: 2rem; font-weight: 850; color: #0d1f17; font-family: 'Space Grotesk', sans-serif;">{p['condition']}</div>
+            <div style="font-size: 1.95rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.5rem; font-family: 'Space Grotesk', sans-serif;">
+                {p['condition']}
+            </div>
         </div>
         """, unsafe_allow_html=True)
+
+        if p["confidence"] < 60.0:
+            st.info("💡 **Low-confidence result:** Try uploading a clearer specimen image with good natural lighting and minimal background clutter.")
 
         m1, m2, m3, m4 = st.columns(4)
         with m1:
-            st.markdown(f'<div class="metric-container"><div class="metric-value" style="font-size:1.3rem;">{p["plant"]}</div><div class="metric-label">{t("plant_label")}</div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-value" style="font-size: 1.4rem;">{p['plant']}</div>
+                <div class="metric-label">Plant</div>
+            </div>
+            """, unsafe_allow_html=True)
         with m2:
-            st.markdown(f'<div class="metric-container"><div class="metric-value" style="font-size:1.3rem;">{p["category"]}</div><div class="metric-label">{t("category_label")}</div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-value" style="font-size: 1.4rem;">{p['category']}</div>
+                <div class="metric-label">Category</div>
+            </div>
+            """, unsafe_allow_html=True)
         with m3:
-            st.markdown(f'<div class="metric-container"><div class="metric-value" style="font-size:1.3rem;">{p["severity"]}</div><div class="metric-label">{t("risk_label")}</div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-value" style="font-size: 1.4rem;">{p['severity']}</div>
+                <div class="metric-label">Risk Level</div>
+            </div>
+            """, unsafe_allow_html=True)
         with m4:
-            st.markdown(f'<div class="metric-container"><div class="metric-value" style="font-size:1.3rem;">{p["confidence"]:.1f}%</div><div class="metric-label">{t("conf_label")}</div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-value" style="font-size: 1.4rem;">{p['confidence']:.2f}%</div>
+                <div class="metric-label">Confidence</div>
+            </div>
+            """, unsafe_allow_html=True)
 
+        st.write("")
         st.markdown(f"""
         <div class="product-card">
-            <h3>Clinical Pathology Overview</h3>
+            <h3>Disease Information & Clinical Overview</h3>
             <div class="info-layout-grid">
-                <div class="info-box"><div class="info-box-title">{t("overview_title")}</div><p class="info-box-text">{html.escape(info.get('overview', ''))}</p></div>
-                <div class="info-box"><div class="info-box-title">{t("symptoms_title")}</div><p class="info-box-text">{html.escape(info.get('symptoms', ''))}</p></div>
-                <div class="info-box"><div class="info-box-title">{t("causes_title")}</div><p class="info-box-text">{html.escape(info.get('causes', ''))}</p></div>
-                <div class="info-box"><div class="info-box-title">{t("treatment_title")}</div><p class="info-box-text">{html.escape(info.get('chemical_treatment', ''))}</p></div>
+                <div class="info-box">
+                    <div class="info-box-title">📖 Description</div>
+                    <p class="info-box-text">{html.escape(info.get('overview', 'N/A'))}</p>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-title">🤒 Symptoms</div>
+                    <p class="info-box-text">{html.escape(info.get('symptoms', 'N/A'))}</p>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-title">⚠️ Causes</div>
+                    <p class="info-box-text">{html.escape(info.get('causes', 'N/A'))}</p>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-title">💊 Treatment / Management</div>
+                    <p class="info-box-text">{html.escape(info.get('chemical_treatment', info.get('treatment', 'N/A')))}</p>
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown(f"### {t('top5_heading')}")
+        st.markdown("### 🌾 Smart Recommendations")
+        r1, r2, r3 = st.columns(3)
+        with r1:
+            st.markdown(f"""
+            <div class="product-card">
+                <h3>🌱 Fertilizer Guidance</h3>
+                <div class="card-muted">{html.escape(info.get('fertilizer', 'N/A'))}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with r2:
+            st.markdown(f"""
+            <div class="product-card">
+                <h3>🐛 Pest / Disease Control</h3>
+                <div class="card-muted">{html.escape(info.get('pest_control', 'N/A'))}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with r3:
+            st.markdown(f"""
+            <div class="product-card">
+                <h3>👨‍🌾 Farmer Tips</h3>
+                <div class="card-muted">{html.escape(info.get('farmer_tips', 'N/A'))}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("### 📊 Top 5 AI Predictions")
+        st.caption("Actual model probability distribution")
         for name, prob in p["top5"]:
+            safe_name = html.escape(name)
+            bar_w = max(0.0, min(100.0, prob))
             st.markdown(f"""
             <div class="prob-grid-row">
-                <div class="prob-label">{html.escape(name)}</div>
-                <div class="prob-track"><div class="prob-fill" style="width: {max(0.0, min(100.0, prob)):.2f}%"></div></div>
+                <div class="prob-label">{safe_name}</div>
+                <div class="prob-track"><div class="prob-fill" style="width: {bar_w:.2f}%"></div></div>
                 <div class="prob-pct">{prob:.2f}%</div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown(f'<div class="disclaimer-card">{t("disclaimer")}</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="disclaimer-card">
+            AI-assisted visual screening is intended as an initial assessment. Image quality, lighting, 
+            plant variety and environmental conditions may affect the result. For important agricultural decisions, 
+            consult a qualified agricultural professional.
+        </div>
+        """, unsafe_allow_html=True)
 
 # ============================================================
-# PAGE 3: HEALTH DOSSIER (REPORT)
+# PAGE 3: PLANT HEALTH REPORT
 # ============================================================
 def render_report_page():
-    st.markdown(f"## {t('report_heading')}")
-    st.caption(t("report_desc"))
+    st.markdown("## 📄 Plant Health Report")
+    st.caption("Complete diagnostic dossier ready for review and local export.")
 
     p = st.session_state.prediction_data
     if not p:
-        st.markdown(f"""
+        st.markdown("""
         <div class="product-card" style="text-align: center; padding: 3.5rem 2rem;">
             <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">📋</div>
-            <h3>{t("no_report")}</h3>
-            <div class="card-muted">{t("no_report_desc")}</div>
+            <h3>No Active Screening Record</h3>
+            <div class="card-muted">
+                Please analyze a plant leaf or fruit in the 'Disease Detection' section first to view and download your clinical health report.
+            </div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("Go to Scan Plant", type="primary"):
-            st.session_state["navigation_page_selector"] = t("nav_scan")
+        if st.button("Go to Disease Detection", type="primary"):
+            st.session_state["navigation_page_selector"] = "🔬 Disease Detection"
             st.rerun()
         return
 
     info = get_disease_detail(p["condition"])
-    c1, c2 = st.columns([1, 2], gap="large")
-    with c1:
+
+    col_rep_img, col_rep_meta = st.columns([1, 2], gap="large")
+    with col_rep_img:
         st.image(p["image"], caption="Screened Specimen", use_container_width=True)
-    with c2:
+    with col_rep_meta:
         st.markdown(f"""
         <div class="hero-banner" style="padding: 2rem 2.2rem; margin-bottom: 1rem;">
             <div class="hero-kicker">HEALTH SCREENING DOSSIER</div>
             <div class="hero-title" style="font-size: 1.9rem;">{html.escape(p['condition'])}</div>
-            <div>Confidence: <strong>{p['confidence']:.2f}%</strong> | Severity: <strong>{p['severity']}</strong></div>
-            <div style="margin-top: 0.6rem; font-size: 0.88rem; color: #d1fae5;">{t("powered_by")}</div>
+            <div>Confidence: <strong>{p['confidence']:.2f}%</strong> | Status: <strong>{info.get('status', 'Analyzed')}</strong></div>
+            <div style="margin-top: 0.6rem; font-size: 0.88rem; color: #d1fae5;">Developed by Madhav Kumar | Powered by SEA AUTO</div>
         </div>
         """, unsafe_allow_html=True)
 
+    report_sections = [
+        ("🌱 Plant", p["plant"]),
+        ("🦠 Detected Condition", p["condition"]),
+        ("📊 Diagnostic Category", p["category"]),
+        ("⚠️ Risk Level", p["severity"]),
+        ("📖 Description", info.get("overview", "N/A")),
+        ("🤒 Symptoms", info.get("symptoms", "N/A")),
+        ("⚠️ Causes", info.get("causes", "N/A")),
+        ("💊 Treatment / Management", info.get("chemical_treatment", info.get("treatment", "N/A"))),
+        ("🛡️ Prevention", info.get("prevention", "N/A")),
+        ("🌱 Fertilizer Guidance", info.get("fertilizer", "N/A")),
+        ("🐛 Pest & Disease Management", info.get("pest_control", "N/A")),
+        ("👨‍🌾 Farmer Tips", info.get("farmer_tips", "N/A")),
+    ]
+
+    for title, content in report_sections:
+        st.markdown(f"""
+        <div class="product-card">
+            <h3>{html.escape(title)}</h3>
+            <div class="card-muted">{html.escape(content)}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    txt_dossier = generate_plain_text_report(p, info)
+
     st.download_button(
-        t("download_btn"),
-        generate_plain_text_report(p, info),
+        "📥 Download Plant Health Report (.txt)",
+        txt_dossier,
         file_name=f"PlantCare_Report_{p['condition'].replace(' ', '_')}.txt",
         mime="text/plain",
         use_container_width=True,
     )
 
 # ============================================================
-# PAGE 4: EXPLORE 35 CROPS
+# PAGE 4: EXPLORE CROPS (35 Crops Catalog)
 # ============================================================
 def render_crop_directory():
-    st.markdown("## 🌱 Explore 35 Crops")
-    st.caption("Complete directory of 35 commercial vegetables organized by botanical taxonomy.")
-    for cat_name, crops in get_crops_database().items():
+    st.markdown("## 🌱 Explore Crops")
+    st.caption("Complete directory of 35 vegetable crops across standard botanical categories.")
+
+    plant_db = get_crops_database()
+
+    for cat_name, crops in plant_db.items():
         with st.expander(f"{cat_name} ({len(crops)} Crops)", expanded=True):
             cols = st.columns(3)
             for idx, crop in enumerate(crops):
-                with cols[idx % 3]:
+                col = cols[idx % 3]
+                with col:
+                    if crop.get("ai_supported"):
+                        badge_style = "status-healthy"
+                    elif "Planned" in crop.get("status", ""):
+                        badge_style = "status-warning"
+                    else:
+                        badge_style = "status-danger"
+
                     st.markdown(f"""
-                    <div style="background:#ffffff; border:1px solid #e2ece6; border-radius:16px; padding:1.2rem; margin-bottom:0.95rem;">
-                        <strong style="color:#064e3b; font-size:1.05rem;">{crop['name']}</strong><br>
-                        <span style="font-size:0.78rem; color:#64748b; font-style:italic;">{crop['scientific']}</span>
-                        <div style="margin-top:0.4rem;"><span class="status-badge status-healthy" style="font-size:0.7rem; padding:0.2rem 0.6rem;">{crop['status']}</span></div>
+                    <div style="background:#ffffff; border:1px solid #e2ece6; border-radius:16px; padding:1.2rem; margin-bottom:0.95rem; box-shadow:0 3px 8px rgba(0,0,0,0.02);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                            <strong style="color:#064e3b; font-size:1.05rem;">{crop['name']}</strong>
+                            <span class="status-badge {badge_style}" style="font-size:0.68rem; padding:0.25rem 0.6rem;">{crop['status']}</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; font-style:italic; margin-bottom:0.45rem;">{crop.get('scientific_name', '')}</div>
+                        <p style="font-size:0.88rem; color:#52665a; margin:0; line-height:1.55;">{crop['description']}</p>
                     </div>
                     """, unsafe_allow_html=True)
 
 # ============================================================
-# PAGE 5: 35-CROP PATHOLOGY KNOWLEDGE HUB
+# PAGE 5: DYNAMIC 35-CROP DISEASE KNOWLEDGE HUB
 # ============================================================
 def render_knowledge_hub():
-    st.markdown("## 📚 35-Crop Disease Knowledge Hub")
-    st.caption("Complete Clinical Pathology Dossiers & Integrated Disease Management (IDM) for all 35 vegetable crops.")
-
-    crops_catalog = get_crops_database()
-    crop_list = []
-    for cat, c_items in crops_catalog.items():
-        for c in c_items:
-            crop_list.append(c["name"])
-
-    col_crop, col_dis = st.columns([1, 1.6])
-    with col_crop:
-        selected_crop = st.selectbox("1. Filter by Crop (35 Crops Available)", ["All Crops"] + crop_list)
+    st.markdown("## 📚 Disease Knowledge Hub")
+    st.caption("Advanced Clinical Pathology Dossiers & Integrated Disease Management (IDM) Compendium.")
 
     diseases_db = get_diseases_database()
-    if selected_crop == "All Crops":
-        available_conditions = list(diseases_db.keys())
+    crops_catalog = get_crops_database()
+
+    # Dynamic extraction of all 35 crops
+    crop_names_set = set()
+    for cat, crop_list in crops_catalog.items():
+        for c in crop_list:
+            crop_names_set.add(c["name"])
+
+    for d_name, d_info in diseases_db.items():
+        if d_info.get("crop"):
+            crop_names_set.add(d_info.get("crop"))
+
+    all_crop_options = ["All Crops"] + sorted(list(crop_names_set))
+
+    col_crop_sel, col_disease_sel = st.columns([1, 1.5])
+    with col_crop_sel:
+        crop_filter = st.selectbox(
+            "Filter by Crop",
+            all_crop_options,
+            key="crop_knowledge_filter"
+        )
+
+    # Filter diseases dynamically
+    if crop_filter == "All Crops":
+        filtered_diseases = list(diseases_db.keys())
     else:
-        available_conditions = [k for k, v in diseases_db.items() if v.get("crop") == selected_crop or selected_crop.lower() in v.get("crop", "").lower()]
+        filtered_diseases = [
+            d_name for d_name, d_info in diseases_db.items()
+            if d_info.get("crop") == crop_filter or crop_filter.lower() in d_info.get("crop", "").lower()
+        ]
 
-    with col_dis:
-        if available_conditions:
-            selected_condition = st.selectbox("2. Select Pathological Condition", available_conditions)
-        else:
-            selected_condition = None
-
-    if not selected_condition:
-        st.info("No condition found for selected crop.")
+    if not filtered_diseases:
+        st.info(f"💡 **{crop_filter}:** Detailed disease pathology profiles are currently being compiled for this crop. Check back soon or view general crop details in 'Explore Crops'.")
         return
+
+    with col_disease_sel:
+        selected_condition = st.selectbox(
+            "Select Pathological Condition to Inspect",
+            filtered_diseases,
+            key="condition_knowledge_selector"
+        )
 
     info = get_disease_detail(selected_condition)
 
     st.markdown(f"""
     <div class="result-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-                <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: #64748b;">
-                    Botanical Host: <em>{info.get('scientific', info.get('crop', 'Crop'))}</em>
+                <span style="font-size: 0.88rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b;">
+                    Botanical Specimen: <em>{info.get('scientific_crop', info.get('crop', 'Crop'))}</em>
                 </span>
-                <div style="font-size: 0.88rem; color: #047857; font-weight: 750; margin-top: 0.2rem;">
+                <div style="font-size: 0.88rem; color: #047857; font-weight: 750; margin-top: 0.25rem;">
                     Pathogen Taxon: {info.get('pathogen', 'N/A')}
                 </div>
             </div>
-            <div>
-                <span class="status-badge {info.get('badge', 'status-warning')}">● {info.get('category', 'Condition')}</span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="status-badge {info.get('badge', 'status-warning')}">● {info.get('category', 'Category')}</span>
+                <span class="status-badge status-warning" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1;">Severity: {info.get('severity', 'Moderate')}</span>
             </div>
         </div>
-        <div style="font-size: 2.1rem; font-weight: 850; color: #0d1f17; font-family: 'Space Grotesk', sans-serif;">
+        <div style="font-size: 2.1rem; font-weight: 850; color: #0d1f17; margin-bottom: 0.65rem; font-family: 'Space Grotesk', sans-serif;">
             {selected_condition}
         </div>
-        <div style="font-size: 0.98rem; color: #334155; line-height: 1.7; margin-top: 0.5rem;">
+        <div style="font-size: 1rem; color: #334155; line-height: 1.72;">
             {info.get('overview', '')}
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    tab1, tab2, tab3 = st.tabs(["🔬 Etiology & Symptoms", "💊 Chemical & Organic Treatment", "🛡️ Prevention & Field Rules"])
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "🔬 Etiology & Symptoms",
+        "💊 Integrated Chemical & Bio-Control",
+        "🛡️ Prevention & Cultural Control",
+        "🌱 Nutrition & Thresholds"
+    ])
+
     with tab1:
         c1, c2 = st.columns(2)
         with c1:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🧬 Pathogen Biology & Life Cycle</h3>
-                <div class="card-muted">{info.get('etiology', 'N/A')}</div>
+                <h3>🧬 Pathogen Etiology & Life Cycle</h3>
+                <div class="card-muted">{info.get('etiology', info.get('causes', 'N/A'))}</div>
             </div>
             <div class="product-card">
-                <h3>⚠️ Pre-disposing Stress Factors</h3>
-                <div class="card-muted">{info.get('causes', 'N/A')}</div>
+                <h3>⚠️ Environmental Pre-disposing Factors</h3>
+                <div class="card-muted">
+                    {info.get('causes', 'N/A')}
+                    <br><br>
+                    <strong>Optimal Climate Conditions:</strong><br>
+                    <span style="color:#064e3b; font-weight:750;">{info.get('ideal_climate', 'Warm, humid weather with prolonged foliar moisture')}</span>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🤒 Symptomatology & Diagnostics</h3>
-                <div class="card-muted">{info.get('symptoms', 'N/A')}</div>
+                <h3>🤒 Symptomatology & Stage Diagnosis</h3>
+                <div class="card-muted" style="white-space: pre-line;">{info.get('symptoms', 'N/A')}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1422,15 +1573,18 @@ def render_knowledge_hub():
         with c3:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🧪 Chemical Regimen & Dosage</h3>
-                <div class="card-muted">{info.get('chemical_treatment', 'N/A')}</div>
+                <h3>🧪 Chemical Formulations & Doses</h3>
+                <div class="card-muted" style="white-space: pre-line;">{info.get('chemical_treatment', info.get('treatment', 'N/A'))}</div>
+                <div style="font-size:0.82rem; color:#b91c1c; margin-top:0.85rem; font-weight:600;">
+                    * Follow local agrochemical regulations and strictly respect Pre-Harvest Intervals (PHI).
+                </div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🌿 Biological Antagonists & Organic Regimes</h3>
-                <div class="card-muted">{info.get('organic_treatment', 'N/A')}</div>
+                <h3>🌿 Biological & Bio-Pesticide Regimes</h3>
+                <div class="card-muted" style="white-space: pre-line;">{info.get('organic_treatment', 'Maintain foliar sprays of certified biological antagonists such as Bacillus subtilis or Trichoderma species.')}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1439,161 +1593,464 @@ def render_knowledge_hub():
         with c5:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🛡️ Preventative Cultural Practices</h3>
-                <div class="card-muted">{info.get('prevention', 'N/A')}</div>
-            </div>
-            <div class="product-card">
-                <h3>🌱 Nutrient Modulation</h3>
-                <div class="card-muted">{info.get('fertilizer', 'N/A')}</div>
+                <h3>🛡️ Preventative Agronomic Protocol</h3>
+                <div class="card-muted" style="white-space: pre-line;">{info.get('prevention', 'N/A')}</div>
             </div>
             """, unsafe_allow_html=True)
         with c6:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🐛 Vector Management</h3>
+                <h3>🐛 Vector & Alternate Host Management</h3>
                 <div class="card-muted">{info.get('pest_control', 'N/A')}</div>
             </div>
             <div class="product-card">
-                <h3>👨‍🌾 Operational Field Rules</h3>
+                <h3>👨‍🌾 Operational Field Recommendations</h3>
                 <div class="card-muted">{info.get('farmer_tips', 'N/A')}</div>
             </div>
             """, unsafe_allow_html=True)
 
-# ============================================================
-# PAGE 6: FIELD CASE STUDIES
-# ============================================================
-def render_farmer_stories():
-    st.markdown("## 🌾 Field Case Studies & Agronomist Records")
-    st.caption("Validated management protocols and economic yield recoveries from commercial fields.")
-    st.markdown("""
-    <div class="product-card">
-        <h3>Late Blight Recovery in Solanaceous Crops</h3>
-        <div class="card-muted">
-            Implementation of Cymoxanil + Mancozeb within 24 hours of first sporulation prevented canopy collapse and saved 85% of tuber yield.
-        </div>
-    </div>
-    <div class="product-card">
-        <h3>Whitefly Vector Suppression in Commercial Chilli</h3>
-        <div class="card-muted">
-            Deployment of yellow sticky traps combined with Diafenthiuron halted Leaf Curl Virus spread across 10-acre block.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ============================================================
-# PAGE 7: WEATHER & SPRAY ADVISORY (AUTO LOCATION INTEGRATED)
-# ============================================================
-def render_weather_advisory():
-    st.markdown(f"## {t('nav_weather')}")
-    st.caption("Live meteorological satellite assessment calculating disease pressure indexes and chemical spray windows.")
-
-    st.markdown("""
-    <div class="product-card">
-        <h3>🛰️ Live Geolocation & Meteorological Synchronization</h3>
-        <div class="card-muted">Toggle auto-GPS location fetch to synchronize live satellite forecasts with your current crop field.</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    c_geo1, c_geo2 = st.columns([1.2, 2], gap="large")
-
-    with c_geo1:
-        auto_loc = st.toggle("🛰️ Auto-Detect My GPS Location", value=True)
-        if auto_loc:
-            with st.spinner("Acquiring GPS coordinates..."):
-                lat, lon, loc_name = fetch_auto_geolocation()
-                st.session_state.user_lat = lat
-                st.session_state.user_lon = lon
-                st.session_state.user_location_name = loc_name
-            st.success(f"📍 Location Synced: **{loc_name}**")
-        else:
-            lat = st.number_input("Latitude", value=float(st.session_state.user_lat), format="%.4f")
-            lon = st.number_input("Longitude", value=float(st.session_state.user_lon), format="%.4f")
-            st.session_state.user_lat = lat
-            st.session_state.user_lon = lon
-
-    with c_geo2:
-        weather, err = get_live_weather_data(st.session_state.user_lat, st.session_state.user_lon)
-        if weather:
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Temperature", f"{weather['temperature_c']}°C")
-            m2.metric("Humidity", f"{weather['relative_humidity_pct']}%")
-            m3.metric("Rain Chance", f"{weather['rain_probability_pct']}%")
-            m4.metric("Wind Velocity", f"{weather['wind_speed_kmh']} km/h")
-
-            # Spray window calculation
-            suitable = weather['wind_speed_kmh'] <= 15.0 and weather['rain_probability_pct'] <= 30.0 and weather['temperature_c'] <= 35.0
-            status_text = "Favorable (Safe Chemical Application Window)" if suitable else "Unfavorable (High Drift / Washoff Risk - Postpone Spraying)"
-            status_color = "#065f46" if suitable else "#991b1b"
-
-            st.markdown(f"""
-            <div class="product-card" style="margin-top: 1rem;">
-                <div style="font-size: 1.15rem; font-weight: 850; color: {status_color};">✦ Spray Window Status: {status_text}</div>
-                <div class="card-muted" style="margin-top:0.4rem;">
-                    Wind drift risk is {'minimal' if weather['wind_speed_kmh'] <= 15.0 else 'elevated'}. Rain wash-off probability is {'low' if weather['rain_probability_pct'] <= 30.0 else 'high'}.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-# ============================================================
-# PAGE 8: NEARBY AGRI CENTERS (AUTO LOCATION INTEGRATED)
-# ============================================================
-def render_nearby_page():
-    st.markdown(f"## {t('nav_nearby')}")
-    st.caption("Locate verified agricultural suppliers, seed centers, and certified nurseries within your operational zone.")
-
-    st.markdown(f"""
-    <div class="product-card">
-        <h3>📍 Active Search Location: {st.session_state.user_location_name}</h3>
-        <div class="card-muted">Coordinates: Latitude {st.session_state.user_lat:.4f}, Longitude {st.session_state.user_lon:.4f}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("🔎 Search Certified Agri Centers Nearby", type="primary", use_container_width=True):
-        with st.spinner("Connecting to OpenStreetMap geospatial directory..."):
-            st.session_state.nearby_shops = query_nearby_plant_care(st.session_state.user_lat, st.session_state.user_lon)
-
-    if st.session_state.nearby_shops:
-        st.markdown("### Verified Agricultural Service Centers")
-        for s in st.session_state.nearby_shops:
+    with tab4:
+        c7, c8 = st.columns(2)
+        with c7:
             st.markdown(f"""
             <div class="product-card">
-                <h3>🏪 {html.escape(s['name'])}</h3>
+                <h3>🌱 Nutrient Modulation & Soil Health</h3>
+                <div class="card-muted">{info.get('fertilizer', 'N/A')}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c8:
+            st.markdown(f"""
+            <div class="product-card">
+                <h3>📊 Economic Threshold Level (ETL)</h3>
                 <div class="card-muted">
-                    <strong>Classification:</strong> {html.escape(s['type'])}<br>
-                    <strong>Location:</strong> {html.escape(s['address'])}
+                    {info.get('economic_threshold', 'Initiate chemical interventions upon observing 5% foliar canopy damage across the field.')}
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            st.link_button("🗺️ View in Google Maps", s["maps"])
-    else:
-        st.info("Click the button above to query verified agricultural suppliers around your active GPS coordinates.")
 
 # ============================================================
-# PAGE 9: CONTENT MANAGER
+# PAGE 6: FARMER STORIES
+# ============================================================
+def render_farmer_stories():
+    st.markdown("## 🌾 Farmer Stories")
+    st.caption("Real crop-protection experiences and field management lessons shared by farmers.")
+
+    stories = get_farmer_stories()
+    active_stories = [s for s in stories if s.get("status") == "active"]
+    active_stories.sort(key=lambda x: x.get("priority", 99))
+
+    if not active_stories:
+        st.info("No active farmer stories available. You can add new stories from the Content Manager.")
+        return
+
+    cols = st.columns(2, gap="large")
+    for idx, st_item in enumerate(active_stories):
+        col = cols[idx % 2]
+        with col:
+            st.markdown(f"""
+            <div class="product-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <div>
+                        <h3 style="margin-bottom: 0.2rem;">{html.escape(st_item.get('farmer_name', 'Farmer'))}</h3>
+                        <div style="font-size: 0.88rem; color: #047857; font-weight: 750;">
+                            📍 {html.escape(st_item.get('location', ''))}, {html.escape(st_item.get('state', ''))}
+                        </div>
+                    </div>
+                    <span class="status-badge status-healthy" style="font-size: 0.76rem;">
+                        {html.escape(st_item.get('crop', 'Crop'))}
+                    </span>
+                </div>
+                <div style="font-size: 0.94rem; color: #334155; line-height: 1.65; margin-bottom: 0.85rem;">
+                    {html.escape(st_item.get('short_description', ''))}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            if st_item.get("image"):
+                img_path = BASE_DIR / st_item["image"]
+                if img_path.is_file():
+                    st.image(str(img_path), use_container_width=True)
+
+            with st.expander(f"📖 Read Full Experience ({st_item.get('farmer_name')})"):
+                st.markdown(st_item.get("story", "No detailed story recorded."))
+                if st_item.get("contact_cta"):
+                    st.caption(f"Contact / Network: {st_item.get('contact_cta')}")
+
+# ============================================================
+# PAGE 7: WEATHER & SPRAY ADVISORY
+# ============================================================
+def render_weather_advisory():
+    st.markdown("## 🌦️ Weather & Spray Advisory")
+    st.caption("Dynamic microclimate assessment calculating disease infection risks and spraying windows.")
+
+    advisory_rules = get_advisory_database()
+
+    st.markdown("""
+    <div class="product-card">
+        <h3>Location & Microclimate Configuration</h3>
+        <div class="card-muted">
+            Enable your location or enter coordinates to fetch live weather parameters and automatically recalculate advisories.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c_w1, c_w2 = st.columns([1, 2], gap="large")
+
+    with c_w1:
+        st.markdown("#### Coordinates Input")
+        use_live = st.checkbox("Fetch Live Weather API", value=True)
+        lat = st.number_input("Latitude", value=25.5941, format="%.4f")
+        lon = st.number_input("Longitude", value=85.1376, format="%.4f")
+
+    with c_w2:
+        weather_data = None
+        if use_live:
+            with st.spinner("Connecting to live meteorological service..."):
+                weather_data, err = get_live_weather_data(lat, lon)
+                if err:
+                    st.warning(f"⚠️ {err}. Using default parameters.")
+
+        if not weather_data:
+            st.info("Operating in manual parameter mode.")
+            t_col, h_col, w_col = st.columns(3)
+            with t_col:
+                temp_in = st.slider("Temperature (°C)", 5, 45, 25)
+            with h_col:
+                hum_in = st.slider("Humidity (%)", 10, 100, 75)
+            with w_col:
+                wind_in = st.slider("Wind Speed (km/h)", 0, 50, 10)
+            weather_data = {
+                "temperature_c": temp_in,
+                "relative_humidity_pct": hum_in,
+                "rain_probability_pct": 15.0,
+                "wind_speed_kmh": wind_in,
+                "source": "Manual Input / Default Fallback"
+            }
+
+        st.markdown(f"**Data Source:** `{weather_data['source']}`")
+        m_w1, m_w2, m_w3, m_w4 = st.columns(4)
+        with m_w1:
+            st.metric("Temperature", f"{weather_data['temperature_c']:.1f}°C")
+        with m_w2:
+            st.metric("Humidity", f"{weather_data['relative_humidity_pct']:.0f}%")
+        with m_w3:
+            st.metric("Rain Chance", f"{weather_data['rain_probability_pct']:.0f}%")
+        with m_w4:
+            st.metric("Wind Speed", f"{weather_data['wind_speed_kmh']:.1f} km/h")
+
+    st.markdown("---")
+    st.markdown("### 📊 Dynamic Agronomic Recalculation")
+
+    spray_status, spray_reasons = calculate_spray_advisory(
+        weather_data["temperature_c"],
+        weather_data["relative_humidity_pct"],
+        weather_data["rain_probability_pct"],
+        weather_data["wind_speed_kmh"],
+        advisory_rules
+    )
+
+    disease_risks = calculate_disease_risks(
+        weather_data["temperature_c"],
+        weather_data["relative_humidity_pct"],
+        advisory_rules
+    )
+
+    c_adv1, c_adv2 = st.columns(2)
+    with c_adv1:
+        st.markdown(f"""
+        <div class="product-card">
+            <h3>Spray Suitability Status</h3>
+            <div style="font-size: 1.22rem; font-weight: 850; color: {'#064e3b' if 'Favorable' in spray_status else '#991b1b'}; margin-bottom: 0.5rem;">
+                {spray_status}
+            </div>
+            <div class="card-muted">
+                {'<br>'.join(['• ' + r for r in spray_reasons]) if spray_reasons else 'All microclimate thresholds (wind, rain chance, temperature, humidity) are currently within safe application limits.'}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_adv2:
+        st.markdown(f"""
+        <div class="product-card">
+            <h3>Microclimate Disease Pressures</h3>
+            <div class="card-muted">
+                {'<br>'.join(['• ' + r for r in disease_risks])}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ============================================================
+# PAGE 8: NEARBY PLANT CARE
+# ============================================================
+def render_nearby_page():
+    st.markdown("## 📍 Nearby Plant Care")
+    st.caption("Discover nearby agricultural stores, seed centers, and plant nurseries.")
+
+    st.markdown("""
+    <div class="product-card">
+        <h3>Location-Based Resource Discovery</h3>
+        <div class="card-muted">
+            Enable your location to receive local weather, spray advisory and nearby plant-care recommendations.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c_loc_ctrl, c_loc_view = st.columns([1, 1.3], gap="large")
+
+    with c_loc_ctrl:
+        st.markdown("""
+        <div class="product-card">
+            <h3>Location Settings</h3>
+            <div class="card-muted" style="margin-bottom: 1rem;">
+                Set coordinates to discover agricultural services in your immediate radius.
+            </div>
+        """, unsafe_allow_html=True)
+
+        use_loc = st.checkbox("Enable Location Access", value=st.session_state.get("loc_enabled", False))
+        st.session_state["loc_enabled"] = use_loc
+
+        if use_loc:
+            c_lat, c_lon = st.columns(2)
+            with c_lat:
+                lat = st.number_input("Latitude", value=25.5941, format="%.4f", key="near_lat")
+            with c_lon:
+                lon = st.number_input("Longitude", value=85.1376, format="%.4f", key="near_lon")
+            st.session_state.user_coords = {"lat": lat, "lon": lon}
+            st.success("Location connected.")
+        else:
+            st.session_state.user_coords = None
+            st.info("Location access is disabled. You can enable it above or search nearby services manually.")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with c_loc_view:
+        coords = st.session_state.user_coords
+        if coords:
+            lat = coords["lat"]
+            lon = coords["lon"]
+
+            if st.button("🔎 Discover Nearby Agri-Centers", type="primary", use_container_width=True):
+                with st.spinner("Connecting to geospatial mapping directory..."):
+                    try:
+                        st.session_state.nearby_shops = query_nearby_plant_care(lat, lon, limit=8)
+                    except Exception:
+                        st.session_state.nearby_shops = []
+
+            if st.session_state.nearby_shops is not None:
+                shops = st.session_state.nearby_shops
+                if shops:
+                    st.markdown("### Nearby Verified Centers")
+                    for s in shops:
+                        st.markdown(f"""
+                        <div class="product-card">
+                            <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem;">🏪 {html.escape(s['name'])}</h3>
+                            <div class="card-muted">
+                                <strong>Category:</strong> {html.escape(s['type'])}<br>
+                                <strong>Address:</strong> {html.escape(s['address'])}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.link_button("🗺️ Open in Google Maps", s["maps"])
+                else:
+                    st.warning("No mapped agricultural stores found in the immediate search radius.")
+                    st.link_button(
+                        "🔎 Open in Google Maps Search",
+                        maps_query_url(lat, lon, "plant nursery agricultural supply fertilizer seeds pesticide"),
+                    )
+        else:
+            st.markdown("""
+            <div class="product-card" style="text-align: center; padding: 2.8rem 1.5rem;">
+                <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">🗺️</div>
+                <h3>Locator Ready</h3>
+                <div class="card-muted">
+                    Enable location access on the left to locate certified suppliers.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+# ============================================================
+# PAGE 9: CONTENT MANAGER (Admin UI)
 # ============================================================
 def render_content_manager():
-    st.markdown(f"## {t('nav_admin')}")
-    st.caption("Enterprise repository and knowledge base manager.")
-    st.info("Content Manager authenticated via secure session state.")
+    st.markdown("## ⚙️ Content Manager")
+    st.caption("Manage Farmer Stories and Sponsored Ads dynamically without modifying application code.")
+
+    tab_story, tab_ads = st.tabs(["🌾 Manage Farmer Stories", "📢 Manage Advertisements"])
+
+    with tab_story:
+        st.markdown("### Add New Farmer Story")
+        with st.form("add_farmer_story_form", clear_on_submit=True):
+            col_f1, col_f2 = st.columns(2)
+            with col_f1:
+                f_name = st.text_input("Farmer Name", placeholder="e.g., Sanjay Singh")
+                f_loc = st.text_input("Location / Village", placeholder="e.g., Kaithma")
+                f_state = st.text_input("State", placeholder="e.g., Bihar, India")
+            with col_f2:
+                f_crop = st.text_input("Crop", placeholder="e.g., Tomato (Solanaceae)")
+                f_priority = st.number_input("Display Priority (1 = Top)", min_value=1, value=1)
+                f_status = st.selectbox("Status", ["active", "inactive"])
+
+            f_short = st.text_area("Short Summary", placeholder="Brief highlight of the outcome...")
+            f_story = st.text_area("Full Experience / Story", placeholder="Complete background, treatment, and results...")
+            f_cta = st.text_input("Contact / Network Label (Optional)", placeholder="e.g., Farmer Producer Org Contact")
+            f_img_file = st.file_uploader("Upload Farmer Photo (Optional)", type=["jpg", "jpeg", "png", "webp"], key="f_img_up")
+
+            submitted_story = st.form_submit_button("Save Farmer Story", type="primary")
+
+            if submitted_story:
+                if not f_name or not f_short or not f_story:
+                    st.error("Please fill in the required fields (Name, Short Summary, Story).")
+                else:
+                    img_rel_path = ""
+                    if f_img_file is not None:
+                        img_rel_path = save_uploaded_asset(f_img_file, FARMER_IMAGES_DIR, prefix="farmer")
+
+                    new_story = {
+                        "id": f"story_{uuid.uuid4().hex[:6]}",
+                        "farmer_name": f_name,
+                        "location": f_loc,
+                        "state": f_state,
+                        "crop": f_crop,
+                        "image": img_rel_path,
+                        "short_description": f_short,
+                        "story": f_story,
+                        "contact_cta": f_cta,
+                        "status": f_status,
+                        "priority": int(f_priority),
+                        "date": datetime.now().strftime("%Y-%m-%d")
+                    }
+
+                    current_stories = get_farmer_stories()
+                    current_stories.append(new_story)
+                    save_json_file(DATA_DIR / "farmer_stories.json", current_stories)
+                    st.success("Farmer story saved successfully! The UI will update automatically.")
+
+        st.markdown("---")
+        st.markdown("### Existing Stories")
+        stories = get_farmer_stories()
+        for idx, s in enumerate(stories):
+            with st.expander(f"{s.get('farmer_name')} ({s.get('crop')}) — Status: {s.get('status')}"):
+                st.write(s)
+                if st.button(f"Delete Story #{idx+1}", key=f"del_story_{idx}"):
+                    stories.pop(idx)
+                    save_json_file(DATA_DIR / "farmer_stories.json", stories)
+                    st.rerun()
+
+    with tab_ads:
+        st.markdown("### Add New Advertisement / Partner")
+        with st.form("add_ad_form", clear_on_submit=True):
+            col_a1, col_a2 = st.columns(2)
+            with col_a1:
+                ad_title = st.text_input("Title / Heading", placeholder="e.g., Smart Solar Drip Kit")
+                ad_company = st.text_input("Company / Brand", placeholder="e.g., SEA AUTO")
+                ad_category = st.text_input("Category", placeholder="e.g., Agri-Tech")
+            with col_a2:
+                ad_btn_text = st.text_input("Button Text", value="Learn More")
+                ad_btn_url = st.text_input("Button URL", value="https://example.com")
+                ad_priority = st.number_input("Display Priority (1 = Highest)", min_value=1, value=1, key="ad_prio")
+
+            ad_desc = st.text_area("Description", placeholder="Clear summary of the sponsored service...")
+            col_d1, col_d2, col_d3 = st.columns(3)
+            with col_d1:
+                ad_status = st.selectbox("Status", ["active", "inactive"], key="ad_stat")
+            with col_d2:
+                ad_start = st.date_input("Start Date", value=datetime.today())
+            with col_d3:
+                ad_end = st.date_input("End Date", value=datetime(2026, 12, 31))
+
+            ad_img_file = st.file_uploader("Upload Ad Banner Image (Optional)", type=["jpg", "jpeg", "png", "webp"], key="ad_img_up")
+            submitted_ad = st.form_submit_button("Save Advertisement", type="primary")
+
+            if submitted_ad:
+                if not ad_title or not ad_desc:
+                    st.error("Please fill in required fields (Title, Description).")
+                else:
+                    img_rel_path = ""
+                    if ad_img_file is not None:
+                        img_rel_path = save_uploaded_asset(ad_img_file, AD_IMAGES_DIR, prefix="ad")
+
+                    new_ad = {
+                        "id": f"ad_{uuid.uuid4().hex[:6]}",
+                        "title": ad_title,
+                        "company": ad_company,
+                        "image": img_rel_path,
+                        "description": ad_desc,
+                        "category": ad_category,
+                        "button_text": ad_btn_text,
+                        "button_url": ad_btn_url,
+                        "status": ad_status,
+                        "priority": int(ad_priority),
+                        "start_date": ad_start.strftime("%Y-%m-%d"),
+                        "end_date": ad_end.strftime("%Y-%m-%d")
+                    }
+
+                    current_ads = get_advertisements()
+                    current_ads.append(new_ad)
+                    save_json_file(DATA_DIR / "advertisements.json", current_ads)
+                    st.success("Advertisement saved successfully! Active ads will appear dynamically on the Home page.")
+
+        st.markdown("---")
+        st.markdown("### Existing Advertisements")
+        all_ads = get_advertisements()
+        for idx, a in enumerate(all_ads):
+            with st.expander(f"{a.get('title')} ({a.get('company')}) — Status: {a.get('status')}"):
+                st.write(a)
+                if st.button(f"Delete Ad #{idx+1}", key=f"del_ad_{idx}"):
+                    all_ads.pop(idx)
+                    save_json_file(DATA_DIR / "advertisements.json", all_ads)
+                    st.rerun()
 
 # ============================================================
-# PAGE 10: ABOUT PLATFORM
+# PAGE 10: ABOUT PLANTCARE AI
 # ============================================================
 def render_about_page():
-    st.markdown(f"""
+    st.markdown("""
     <div class="product-card">
-        <div class="hero-kicker">✦ PLATFORM ARCHITECTURE</div>
-        <h1 style="color: #064e3b; font-size: 2.3rem; margin: 0.5rem 0 0.85rem; font-family: 'Space Grotesk', sans-serif;">{t("app_title")}</h1>
+        <div class="hero-kicker" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">
+            ✦ ABOUT PLANTCARE AI
+        </div>
+        <h1 style="color: #064e3b; font-size: 2.3rem; margin: 0.5rem 0 0.85rem; font-family: 'Space Grotesk', sans-serif;">About PlantCare AI</h1>
         <p class="card-muted" style="font-size: 1.08rem;">
-            PlantCare AI is an enterprise-grade agricultural intelligence engine built to empower vegetable growers, commercial farm managers, and agricultural specialists with instant, objective visual health screenings.
+            PlantCare AI is an AI-powered plant health screening and crop protection engine developed by <strong>Madhav Kumar</strong> under <strong>SEA AUTO</strong> to help growers, gardeners, 
+            and agricultural specialists understand visible plant-health problems from leaf and fruit images and receive actionable agronomic guidance.
         </p>
         <p class="card-muted">
-            The platform features deep learning convolutional models calibrated for multi-organ (foliage, fruit, tuber) classification alongside a 35-crop pathology compendium, dynamic meteorological spray windows, and localized agri-service discovery.
+            The platform provides AI-assisted visual screening, comprehensive clinical disease profiles across 35 agricultural crops, preventative cultural schedules, 
+            and real-time meteorological spray advisories.
         </p>
     </div>
-    <div class="product-card" style="text-align: center; margin-top: 1.4rem;">
-        <div style="font-size: 1.35rem; font-weight: 850; color: #064e3b; margin-bottom: 0.35rem;">PlantCare AI Enterprise Edition</div>
-        <div style="font-size: 1rem; font-weight: 750; color: #059669; margin-bottom: 0.25rem;">✦ {t("powered_by")}</div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.35rem; margin-top: 1.2rem;">
+        <div class="product-card">
+            <h3>Product Mission</h3>
+            <div class="card-muted">
+                To make early visual plant disease assessment accessible, instant, and straightforward for farmers, growers, and agronomists worldwide.
+            </div>
+        </div>
+        <div class="product-card">
+            <h3>AI-Assisted Vision</h3>
+            <div class="card-muted">
+                High-precision deep learning image screening delivering transparent probability metrics and immediate management steps.
+            </div>
+        </div>
+        <div class="product-card">
+            <h3>SEA AUTO Ecosystem</h3>
+            <div class="card-muted">
+                PlantCare AI is part of SEA AUTO's technology ecosystem focused on building scalable, practical real-world agricultural solutions.
+            </div>
+        </div>
+    </div>
+
+    <div class="product-card" style="margin-top: 1.4rem; text-align: center;">
+        <div style="font-size: 1.35rem; font-weight: 850; color: #064e3b; margin-bottom: 0.35rem;">
+            Developed by Madhav Kumar
+        </div>
+        <div style="font-size: 1rem; font-weight: 750; color: #059669; margin-bottom: 0.25rem;">
+            ✦ Powered by SEA AUTO
+        </div>
+        <div style="font-size: 0.88rem; color: #64748b;">
+            Committed to accessible, intelligent agricultural technology solutions.
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1602,34 +2059,37 @@ def render_about_page():
 # ============================================================
 def main():
     inject_custom_css()
-    render_top_header()
     current_page = render_sidebar()
 
-    if current_page == t("nav_home"):
+    if current_page == "🏠 Home":
         render_home_page()
-    elif current_page == t("nav_scan"):
+    elif current_page == "🔬 Disease Detection":
         render_detection_page()
-    elif current_page == t("nav_report"):
+    elif current_page == "📄 Plant Health Report":
         render_report_page()
-    elif current_page == t("nav_crops"):
+    elif current_page == "🌱 Explore Crops":
         render_crop_directory()
-    elif current_page == t("nav_knowledge"):
+    elif current_page == "📚 Disease Knowledge Hub":
         render_knowledge_hub()
-    elif current_page == t("nav_stories"):
+    elif current_page == "🌾 Farmer Stories":
         render_farmer_stories()
-    elif current_page == t("nav_weather"):
+    elif current_page == "🌦️ Weather & Spray Advisory":
         render_weather_advisory()
-    elif current_page == t("nav_nearby"):
+    elif current_page == "📍 Nearby Plant Care":
         render_nearby_page()
-    elif current_page == t("nav_admin"):
+    elif current_page == "⚙️ Content Manager":
         render_content_manager()
-    elif current_page == t("nav_about"):
+    elif current_page == "ℹ️ About PlantCare AI":
         render_about_page()
 
-    st.markdown(f"""
+    # Consumer Footer
+    st.markdown("""
     <div class="app-footer-bar">
-        <div><span class="footer-brand">{t("app_title")}</span> &nbsp;·&nbsp; <span>{t("powered_by")}</span></div>
-        <div>© 2026 PlantCare AI. All rights reserved.</div>
+        <div>
+            <span class="footer-brand">PlantCare AI</span>
+            <span>· Powered by SEA AUTO</span>
+        </div>
+        <div>Developed by <strong>Madhav Kumar</strong> &nbsp;|&nbsp; © 2026 PlantCare AI. All rights reserved.</div>
     </div>
     """, unsafe_allow_html=True)
 
